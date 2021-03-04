@@ -23,7 +23,7 @@ class UsuarioRestController extends BaseApiController
     public function register(Request $request, UsuarioBLL $usuarioBLL)
     {
         $data = $this->getContent($request);
-        $user = $usuarioBLL->nuevo($data);
+        $user = $usuarioBLL->nuevo($request, $data);
         return $this->getResponse($user, Response::HTTP_CREATED);
     }
 
@@ -39,7 +39,6 @@ class UsuarioRestController extends BaseApiController
     public function profile(UsuarioBLL $usuarioBLL)
     {
         $user = $usuarioBLL->perfil();
-
         return $this->getResponse($user);
     }
 }

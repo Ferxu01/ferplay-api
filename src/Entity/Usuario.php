@@ -39,6 +39,26 @@ class Usuario implements UserInterface, \Serializable
      */
     private $avatar;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nickname;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $nombre;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $apellidos;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Provincia::class, inversedBy="usuarios")
+     */
+    private $provincia;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,13 +112,35 @@ class Usuario implements UserInterface, \Serializable
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getNickname()
+    {
+        return $this->nickname;
+    }
+
+    /**
+     * @param mixed $nickname
+     * @return Usuario
+     */
+    public function setNickname($nickname)
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+
     public function serialize()
     {
         return serialize([
             $this->id,
+            $this->nombre,
+            $this->apellidos,
+            $this->nickname,
             $this->email,
             $this->password,
-            $this->avatar
+            $this->avatar,
+            $this->provincia
         ]);
     }
 
@@ -106,9 +148,13 @@ class Usuario implements UserInterface, \Serializable
     {
         list(
             $this->id,
+            $this->nombre,
+            $this->apellidos,
+            $this->nickname,
             $this->email,
             $this->password,
-            $this->avatar
+            $this->avatar,
+            $this->provincia
             ) = $this->unserialize($serialized);
     }
 
@@ -129,5 +175,41 @@ class Usuario implements UserInterface, \Serializable
 
     public function eraseCredentials()
     {
+    }
+
+    public function getNombre(): ?string
+    {
+        return $this->nombre;
+    }
+
+    public function setNombre(string $nombre): self
+    {
+        $this->nombre = $nombre;
+
+        return $this;
+    }
+
+    public function getApellidos(): ?string
+    {
+        return $this->apellidos;
+    }
+
+    public function setApellidos(?string $apellidos): self
+    {
+        $this->apellidos = $apellidos;
+
+        return $this;
+    }
+
+    public function getProvincia(): ?Provincia
+    {
+        return $this->provincia;
+    }
+
+    public function setProvincia(?Provincia $provincia): self
+    {
+        $this->provincia = $provincia;
+
+        return $this;
     }
 }

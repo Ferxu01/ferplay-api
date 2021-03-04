@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\BLL;
 
-
+use App\Entity\Provincia;
 use App\Entity\Usuario;
 use DateTime;
 use Exception;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -28,7 +28,7 @@ class UsuarioBLL extends BaseBLL
 
         $imgAvatar = base64_decode($arr_avatar[1]);
         if (!is_null($imgAvatar)) {
-            $fileName = $data['nombreFoto'];
+            $fileName = $usuario->getNickname() . '-' . time() . '.jpg';
             $usuario->setAvatar($fileName);
             $ifp = fopen($this->avatarsDirectory . '/' . $fileName, 'wb');
             if ($ifp) {
@@ -42,15 +42,24 @@ class UsuarioBLL extends BaseBLL
         throw new Exception('No se ha podido cargar la imagen del usuario');
     }
 
-    public function nuevo(array $data)
+    public function nuevo(Request $request, array $data)
     {
+        $provinciaRepository = $this->em->getRepository(Provincia::class);
+        $provincia = $provinciaRepository->findOneBy([
+            'id' => $data['provincia']
+        ]);
+
         $user = new Usuario();
-        $user->setEmail($data['email'])
+        $user->setNombre($data['nombre'])
+            ->setApellidos($data['apellidos'])
+            ->setNickname($data['nickname'])
+            ->setEmail($data['email'])
             ->setPassword($this->encoder->encodePassword($user, $data['password']))
             ->setAvatar($data['avatar'])
+            ->setProvincia($provincia)
             ->setFechaCreacion(new DateTime());
 
-        return $this->guardaValidando($user);
+        return $this->guardaAvatar($request, $user, $data);
     }
 
     public function perfil()
@@ -67,9 +76,13 @@ class UsuarioBLL extends BaseBLL
 
         return [
             'id' => $usuario->getId(),
+            'nombre' => $usuario->getNombre(),
+            'apellidos' => $usuario->getApellidos(),
+            'nickname' => $usuario->getNickname(),
             'email' => $usuario->getEmail(),
             'password' => $usuario->getPassword(),
             'avatar' => $usuario->getAvatar(),
+            'provincia' => $usuario->getProvincia()->getId(),
             'fechaCreacion' => $usuario->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }
