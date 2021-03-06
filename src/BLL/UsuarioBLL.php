@@ -94,7 +94,7 @@ class UsuarioBLL extends BaseBLL
             'email' => $usuario->getEmail(),
             'password' => $usuario->getPassword(),
             'avatar' => $usuario->getAvatar(),
-            'provincia' => $usuario->getProvincia()->getId(),
+            'provincia' => $usuario->getProvincia()->toArray(),
             'fechaCreacion' => $usuario->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }

@@ -45,13 +45,24 @@ class Videojuego
     private $plataforma;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comentario::class, mappedBy="videojuego")
+     * @ORM\OneToMany(targetEntity=Comentario::class, mappedBy="videojuego", orphanRemoval=true)
      */
     private $comentarios;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $imagen;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Like::class, mappedBy="videojuego", orphanRemoval=true)
+     */
+    private $likes;
 
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -119,6 +130,18 @@ class Videojuego
         return $this;
     }
 
+    public function getImagen(): ?string
+    {
+        return $this->imagen;
+    }
+
+    public function setImagen(?string $imagen): self
+    {
+        $this->imagen = $imagen;
+
+        return $this;
+    }
+
     /**
      * @return Collection|Comentario[]
      */
@@ -143,6 +166,36 @@ class Videojuego
             // set the owning side to null (unless already changed)
             if ($comentario->getVideojuego() === $this) {
                 $comentario->setVideojuego(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Like[]
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): self
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes[] = $like;
+            $like->setVideojuego($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): self
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getVideojuego() === $this) {
+                $like->setVideojuego(null);
             }
         }
 

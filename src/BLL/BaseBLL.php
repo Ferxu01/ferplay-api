@@ -25,18 +25,28 @@ class BaseBLL
     /** @var string */
     protected $avatarsUrl;
 
+    /** @var string */
+    protected $videojuegosDirectory;
+
+    /** @var string */
+    protected $videojuegosUrl;
+
     function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
         TokenStorageInterface $tokenStorage,
         string $avatarsDirectory,
-        string $avatarsUrl
+        string $avatarsUrl,
+        string $videojuegosDirectory,
+        string $videojuegosUrl
     ) {
         $this->em = $em;
         $this->validator = $validator;
         $this->tokenStorage = $tokenStorage;
         $this->avatarsDirectory = $avatarsDirectory;
         $this->avatarsUrl = $avatarsUrl;
+        $this->videojuegosDirectory = $videojuegosDirectory;
+        $this->videojuegosUrl = $videojuegosUrl;
     }
 
     private function validate($entity)

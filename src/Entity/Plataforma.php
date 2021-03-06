@@ -80,4 +80,12 @@ class Plataforma
 
         return $this;
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'nombre' => $this->nombre
+        ];
+    }
 }

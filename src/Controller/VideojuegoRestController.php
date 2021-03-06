@@ -38,7 +38,7 @@ class VideojuegoRestController extends BaseApiController
     public function nuevo(Request $request, VideojuegoBLL $videojuegoBLL)
     {
         $data = $this->getContent($request);
-        $videojuego = $videojuegoBLL->nuevo($data);
+        $videojuego = $videojuegoBLL->nuevo($request, $data);
         return $this->getResponse($videojuego, Response::HTTP_CREATED);
     }
 

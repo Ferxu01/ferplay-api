@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UsuarioRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -58,6 +60,16 @@ class Usuario implements UserInterface, \Serializable
      * @ORM\ManyToOne(targetEntity=Provincia::class, inversedBy="usuarios")
      */
     private $provincia;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Like::class, mappedBy="usuario", orphanRemoval=true)
+     */
+    private $likes;
+
+    public function __construct()
+    {
+        $this->likes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -209,6 +221,36 @@ class Usuario implements UserInterface, \Serializable
     public function setProvincia(?Provincia $provincia): self
     {
         $this->provincia = $provincia;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Like[]
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(Like $like): self
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes[] = $like;
+            $like->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(Like $like): self
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getUsuario() === $this) {
+                $like->setUsuario(null);
+            }
+        }
 
         return $this;
     }

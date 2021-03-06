@@ -19,15 +19,17 @@ class VideojuegoBLL extends BaseBLL
         $imgFoto = base64_decode($arr_imagen[1]);
         if (!is_null($imgFoto))
         {
-            $fileName = $data['nombreFoto'] . '-'. time() . '.jpg';
-            $videojuego->setFoto($fileName);
+            //Obtener nombre de la imagen formateando el nombre del videojuego
+            $nombreArray = explode(' ', $videojuego->getNombre());
+            $formatNombre = implode('-', $nombreArray);
+
+            $fileName = $formatNombre . '-'. time() . '.jpg';
+            $videojuego->setImagen($fileName);
             $ifp = fopen($this->videojuegosDirectory . '/' . $fileName, "wb");
             if ($ifp)
             {
                 $ok = fwrite ($ifp, $imgFoto);
-
                 fclose ($ifp);
-
                 if ($ok)
                     return $this->guardaValidando($videojuego);
             }
@@ -43,13 +45,13 @@ class VideojuegoBLL extends BaseBLL
         $videojuego->setNombre($data['nombre'])
             ->setDescripcion($data['descripcion'])
             ->setPlataforma($plataforma)
-            ->setPrecio($data['precio']);
+            ->setPrecio($data['precio'])
+            ->setImagen($data['imagen']);
 
-        return $this->guardaValidando($videojuego);
-        //return $this->guardaImagen($request, $videojuego, $data);
+        return $this->guardaImagen($request, $videojuego, $data);
     }
 
-    public function nuevo(array $data)
+    public function nuevo(Request $request, array $data)
     {
         $plataforma = $this->em->getRepository(Plataforma::class)->find($data['plataforma']);
 
@@ -58,9 +60,10 @@ class VideojuegoBLL extends BaseBLL
             ->setDescripcion($data['descripcion'])
             ->setPlataforma($plataforma)
             ->setPrecio($data['precio'])
+            ->setImagen($data['imagen'])
             ->setFechaCreacion(new DateTime());
 
-        return $this->guardaValidando($videojuego);
+        return $this->guardaImagen($request, $videojuego, $data);
     }
 
     public function editar(Request $request, Videojuego $videojuego, array $data)
@@ -83,8 +86,9 @@ class VideojuegoBLL extends BaseBLL
             'id' => $videojuego->getId(),
             'nombre' => $videojuego->getNombre(),
             'descripcion' => $videojuego->getDescripcion(),
-            'plataforma' => $videojuego->getPlataforma(),
+            'plataforma' => $videojuego->getPlataforma()->toArray(),
             'precio' => $videojuego->getPrecio(),
+            'imagen' => $videojuego->getImagen(),
             'fechaCreacion' => $videojuego->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }
