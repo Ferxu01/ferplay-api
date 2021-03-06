@@ -47,6 +47,12 @@ services:
         public: false
         parent: App\BLL\BaseBLL
 
+    App\BLL\ComentarioBLL:
+        autowire: false
+        autoconfigure: false
+        public: false
+        parent: App\BLL\BaseBLL
+
     App\BLL\UsuarioBLL:
         autowire: false
         autoconfigure: false

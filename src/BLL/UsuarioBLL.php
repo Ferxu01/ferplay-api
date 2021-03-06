@@ -69,6 +69,18 @@ class UsuarioBLL extends BaseBLL
         return $this->toArray($user);
     }
 
+    public function editarPassword(string $password)
+    {
+        $user = $this->getUser();
+        $user->setPassword($this->encoder->encodePassword($user, $password));
+        return $this->guardaValidando($user);
+    }
+
+    public function editarAvatar(Request $request, array $data)
+    {
+        return $this->guardaAvatar($request, $this->getUser(), $data);
+    }
+
     public function toArray(Usuario $usuario)
     {
         if (is_null($usuario))
