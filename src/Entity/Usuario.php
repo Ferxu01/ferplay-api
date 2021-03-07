@@ -66,9 +66,15 @@ class Usuario implements UserInterface, \Serializable
      */
     private $likes;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Videojuego::class, mappedBy="usuario", orphanRemoval=true)
+     */
+    private $videojuegos;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
+        $this->videojuegos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -253,5 +259,50 @@ class Usuario implements UserInterface, \Serializable
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Videojuego[]
+     */
+    public function getVideojuegos(): Collection
+    {
+        return $this->videojuegos;
+    }
+
+    public function addVideojuego(Videojuego $videojuego): self
+    {
+        if (!$this->videojuegos->contains($videojuego)) {
+            $this->videojuegos[] = $videojuego;
+            $videojuego->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideojuego(Videojuego $videojuego): self
+    {
+        if ($this->videojuegos->removeElement($videojuego)) {
+            // set the owning side to null (unless already changed)
+            if ($videojuego->getUsuario() === $this) {
+                $videojuego->setUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->getId(),
+            'nombre' => $this->getNombre(),
+            'apellidos' => $this->getApellidos(),
+            'nickname' => $this->getNickname(),
+            'email' => $this->getEmail(),
+            'password' => $this->getPassword(),
+            'avatar' => $this->getAvatar(),
+            'provincia' => $this->getProvincia()->toArray(),
+            'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
+        ];
     }
 }

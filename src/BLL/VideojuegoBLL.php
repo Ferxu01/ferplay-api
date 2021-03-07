@@ -3,6 +3,7 @@
 namespace App\BLL;
 
 use App\Entity\Plataforma;
+use App\Entity\Usuario;
 use App\Entity\Videojuego;
 use DateTime;
 use Exception;
@@ -61,6 +62,7 @@ class VideojuegoBLL extends BaseBLL
             ->setPlataforma($plataforma)
             ->setPrecio($data['precio'])
             ->setImagen($data['imagen'])
+            ->setUsuario($this->getUser())
             ->setFechaCreacion(new DateTime());
 
         return $this->guardaImagen($request, $videojuego, $data);
@@ -89,6 +91,8 @@ class VideojuegoBLL extends BaseBLL
             'plataforma' => $videojuego->getPlataforma()->toArray(),
             'precio' => $videojuego->getPrecio(),
             'imagen' => $videojuego->getImagen(),
+            'usuario' => $videojuego->getUsuario()->toArray(),
+            'liked' => $videojuego->isLiked(),
             'fechaCreacion' => $videojuego->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }
