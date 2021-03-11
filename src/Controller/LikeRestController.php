@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\BLL\LikeBLL;
 use App\Entity\Videojuego;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,23 +18,49 @@ class LikeRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function darLikeVideojuego(Videojuego $videojuego, LikeBLL $likeBLL)
+    public function darLikeVideojuego(Videojuego $videojuego = null, LikeBLL $likeBLL)
     {
+        if (is_null($videojuego)) {
+            $errores['mensajes'] = 'No se ha encontrado el videojuego';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        } else {
+            if ($videojuego->getLiked() === true) {
+                $errores['mensajes'] = 'Ya has dado like a este videojuego';
+                $statusCode = Response::HTTP_BAD_REQUEST;
+            }
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, $statusCode);
+
         $like = $likeBLL->darLike($videojuego);
         return $this->getResponse($like, Response::HTTP_NO_CONTENT);
     }
 
     /**
      * @Route(
-     *     "/videojuegos/{id}/delete/like.{_format}",
-     *     name="like_videojuego",
+     *     "/videojuegos/{id}/like.{_format}",
+     *     name="delete_like_videojuego",
      *     requirements={"id": "\d+", "_format": "json"},
      *     defaults={"_format": "json"},
      *     methods={"DELETE"}
      * )
      */
-    public function eliminarLikeVideojuego(Videojuego $videojuego, LikeBLL $likeBLL)
+    public function eliminarLikeVideojuego(Videojuego $videojuego = null, LikeBLL $likeBLL)
     {
+        if (is_null($videojuego)) {
+            $errores['mensajes'] = 'No se ha encontrado el videojuego';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        } else {
+            if ($videojuego->getLiked() === false) {
+                $errores['mensajes'] = 'No has dado like a este videojuego';
+                $statusCode = Response::HTTP_BAD_REQUEST;
+            }
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, $statusCode);
+
         $likeBLL->eliminarLike($videojuego);
         return $this->getResponse(null, Response::HTTP_NO_CONTENT);
     }

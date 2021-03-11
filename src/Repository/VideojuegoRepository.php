@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Usuario;
 use App\Entity\Videojuego;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,6 +18,15 @@ class VideojuegoRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Videojuego::class);
+    }
+
+    public function getVideojuegosUsuario(int $idUsuario)
+    {
+        $qb = $this->createQueryBuilder('v');
+        $qb->innerJoin('v.plataforma', 'plataforma');
+        $qb->innerJoin('v.usuario', 'usuario');
+        $qb->where($qb->expr()->eq('usuario.id', $idUsuario));
+        return $qb->getQuery()->getResult();
     }
 
     // /**

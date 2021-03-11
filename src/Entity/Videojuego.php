@@ -60,21 +60,21 @@ class Videojuego
     private $likes;
 
     /**
-     * @var boolean
-     */
-    private $liked;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Usuario::class, inversedBy="videojuegos")
      * @ORM\JoinColumn(nullable=false)
      */
     private $usuario;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $liked;
+
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
         $this->likes = new ArrayCollection();
-        $this->liked = false;
+        $this->setLiked(false);
     }
 
     public function getId(): ?int
@@ -154,6 +154,18 @@ class Videojuego
         return $this;
     }
 
+    public function getLiked(): ?bool
+    {
+        return $this->liked;
+    }
+
+    public function setLiked(bool $liked): self
+    {
+        $this->liked = $liked;
+
+        return $this;
+    }
+
     /**
      * @return Collection|Comentario[]
      */
@@ -211,24 +223,6 @@ class Videojuego
             }
         }
 
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLiked(): bool
-    {
-        return $this->liked || false;
-    }
-
-    /**
-     * @param bool $liked
-     * @return Videojuego
-     */
-    public function setLiked(bool $liked): Videojuego
-    {
-        $this->liked = $liked;
         return $this;
     }
 

@@ -5,9 +5,9 @@ namespace App\Controller;
 
 
 use App\BLL\UsuarioBLL;
+use App\Entity\Usuario;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UsuarioRestController extends BaseApiController
@@ -23,14 +23,37 @@ class UsuarioRestController extends BaseApiController
      */
     public function register(Request $request, UsuarioBLL $usuarioBLL)
     {
+        $errores['mensaje'] = [];
         $data = $this->getContent($request);
+        $usuarioRepo = $this->getDoctrine()->getRepository(Usuario::class);
+        $usuarios = $usuarioRepo->findAll();
+
+        if (empty($data['nombre']) || empty($data['apellidos']) || empty($data['nickname'])
+        || empty($data['email']) || empty($data['password']) || empty($data['avatar'])
+        || empty($data['provincia']))
+            array_push($errores['mensaje'], 'Los campos no pueden estar vacíos');
+
+        if (!is_int($data['provincia']))
+            array_push($errores['mensaje'], 'La provincia debe ser un número');
+        if ($data['provincia'] <= 0)
+            array_push($errores['mensaje'], 'La provincia no puede ser 0 o menor de 0');
+
+        foreach ($usuarios as $usuario) {
+            if ($data['nickname'] === $usuario->getNickname()) {
+                array_push($errores['mensaje'], 'Ya existe un usuario con ese nickname');
+            }
+        }
+
+        if (count($errores['mensaje']) > 0)
+            return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
+
         $user = $usuarioBLL->nuevo($request, $data);
         return $this->getResponse($user, Response::HTTP_CREATED);
     }
 
     /**
      * @Route(
-     *     "/profile.{_format}",
+     *     "/profile/me.{_format}",
      *     name="profile",
      *     requirements={"_format": "json"},
      *     defaults={"_format": "json"},
@@ -45,7 +68,7 @@ class UsuarioRestController extends BaseApiController
 
     /**
      * @Route(
-     *     "/profile/password.{_format}",
+     *     "/profile/edit/password.{_format}",
      *     name="update_password",
      *     requirements={"_format": "json"},
      *     defaults={"_format": "json"},
@@ -57,7 +80,8 @@ class UsuarioRestController extends BaseApiController
         $data = $this->getContent($request);
         if (is_null($data['password']) || !isset($data['password'])
             || empty($data['password'])) {
-            throw new BadRequestHttpException('No se ha recibido la contraseña');
+            $errores['mensaje'] = 'La contraseña no puede estar vacía';
+            return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
         }
 
         $user = $usuarioBLL->editarPassword($data['password']);
@@ -66,7 +90,7 @@ class UsuarioRestController extends BaseApiController
 
     /**
      * @Route(
-     *     "/profile/avatar.{_format}",
+     *     "/profile/edit/avatar.{_format}",
      *     name="update_avatar",
      *     requirements={"_format": "json"},
      *     defaults={"_format": "json"},
@@ -76,8 +100,11 @@ class UsuarioRestController extends BaseApiController
     public function editarAvatar(Request $request, UsuarioBLL $usuarioBLL)
     {
         $data = $this->getContent($request);
-        if (is_null($data['avatar']))
-            throw new BadRequestHttpException('No se ha recibido el avatar');
+        if (is_null($data['avatar']) || !isset($data['avatar'])
+            || empty($data['avatar'])) {
+            $errores['mensaje'] = 'El avatar no puede estar vacío';
+            return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
+        }
 
         $avatarsDirectory = $this->getParameter('avatars_directory');
         $avatarsUrl = $this->getParameter('avatars_url');

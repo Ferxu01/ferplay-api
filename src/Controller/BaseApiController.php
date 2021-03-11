@@ -29,4 +29,14 @@ class BaseApiController extends AbstractController
         $response->setStatusCode($statusCode);
         return $response;
     }
+
+    protected function getErrorResponse(array $errores, int $statusCode)
+    {
+        $errorResponse = new JsonResponse();
+        $result['errores'] = $errores;
+        $errorResponse->setContent(json_encode($result));
+
+        $errorResponse->setStatusCode($statusCode);
+        return $errorResponse;
+    }
 }

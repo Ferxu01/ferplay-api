@@ -20,9 +20,22 @@ class ComentarioRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function post(Request $request, Videojuego $videojuego, ComentarioBLL $comentarioBLL)
+    public function post(Request $request, Videojuego $videojuego = null, ComentarioBLL $comentarioBLL)
     {
+        $statusCode = Response::HTTP_BAD_REQUEST;
         $data = $this->getContent($request);
+
+        if (is_null($videojuego)) {
+            $errores['mensaje'] = 'No se ha encontrado el videojuego';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        } else if (empty($data['comentario'])) {
+            $errores['mensaje'] = 'El comentario no puede estar vacío';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, $statusCode);
+
         $comentario = $comentarioBLL->nuevo($request, $videojuego, $data);
         return $this->getResponse($comentario, Response::HTTP_CREATED);
     }
@@ -36,12 +49,31 @@ class ComentarioRestController extends BaseApiController
      *     methods={"DELETE"}
      * )
      */
-    public function delete(int $idComentario, Videojuego $videojuego, ComentarioBLL $comentarioBLL)
+    public function delete(int $idComentario, Videojuego $videojuego = null, ComentarioBLL $comentarioBLL)
     {
         $comentarioRepository = $this->getDoctrine()->getRepository(Comentario::class);
-        $comentario = $comentarioRepository->findOneBy([
-            'id' => $idComentario
-        ]);
+
+        if (is_null($videojuego)) {
+            $errores['mensaje'] = 'No se ha encontrado el videojuego';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        } else {
+            $comentario = $comentarioRepository->findOneBy([
+                'id' => $idComentario
+            ]);
+
+            if (!is_null($comentario) && $this->getUser()->getId() !== $comentario->getIdUsuario()) {
+                $errores['mensaje'] = 'No puedes eliminar comentarios que no hayas creado';
+                $statusCode = Response::HTTP_FORBIDDEN;
+            }
+
+            if (is_null($comentario)) {
+                $errores['mensaje'] = 'El comentario no existe';
+                $statusCode = Response::HTTP_NOT_FOUND;
+            }
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, $statusCode);
 
         $comentarioBLL->delete($comentario);
         return $this->getResponse(null, Response::HTTP_NO_CONTENT);
