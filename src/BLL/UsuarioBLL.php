@@ -6,7 +6,9 @@ use App\Entity\Provincia;
 use App\Entity\Usuario;
 use DateTime;
 use Exception;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -14,6 +16,25 @@ class UsuarioBLL extends BaseBLL
 {
     /** @var UserPasswordEncoderInterface $encoder */
     private $encoder;
+
+    /** @var JWTTokenManagerInterface */
+    private $jwtManager;
+
+    public function setJWTManager(JWTTokenManagerInterface $jwtManager)
+    {
+        $this->jwtManager = $jwtManager;
+    }
+
+    public function getTokenByEmail($email)
+    {
+        $user = $this->em->getRepository(Usuario::class)
+            ->findOneBy(['email' => $email]);
+
+        if (is_null($user))
+            throw new AccessDeniedHttpException('Usuario no autorizado');
+
+        return $this->jwtManager->create($user);
+    }
 
     public function setEncoder(UserPasswordEncoderInterface $encoder)
     {
@@ -62,11 +83,16 @@ class UsuarioBLL extends BaseBLL
         return $this->guardaAvatar($request, $user, $data);
     }
 
-    public function perfil()
+    public function miPerfil()
     {
         $user = $this->getUser();
 
         return $this->toArray($user);
+    }
+
+    public function perfil(Usuario $usuario)
+    {
+        return $this->toArray($usuario);
     }
 
     public function editarPassword(string $password)

@@ -1,17 +1,38 @@
 <?php
 
-
 namespace App\Controller;
-
 
 use App\BLL\UsuarioBLL;
 use App\Entity\Usuario;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UsuarioRestController extends BaseApiController
 {
+    /**
+     * @Route(
+     *     "/auth/google",
+     *     name="login_google"
+     * )
+     */
+    public function googleLogin(Request $request, UsuarioBLL $usuarioBLL)
+    {
+        $data = $this->getContent($request);
+
+        if (is_null($data['access_token']) || !isset($data['access_token'])
+        || empty($data['access_token']))
+            throw new BadRequestHttpException('No se ha recibido el token de google');
+
+        $googleJwt = json_decode(file_get_contents(
+            "https://www.googleapis.com/plus/v1/people/me?access_token=" . $data['access_token']));
+
+        $token = $usuarioBLL->getTokenByEmail($googleJwt->emails[0]->value);
+
+        return $this->getResponse(['token' => $token]);
+    }
+
     /**
      * @Route(
      *     "/auth/register.{_format}",
@@ -62,7 +83,30 @@ class UsuarioRestController extends BaseApiController
      */
     public function profile(UsuarioBLL $usuarioBLL)
     {
-        $user = $usuarioBLL->perfil();
+        $user = $usuarioBLL->miPerfil();
+        return $this->getResponse($user);
+    }
+
+    /**
+     * @Route(
+     *     "/profile/{id}.{_format}",
+     *     name="profile",
+     *     requirements={"id": "\d+", "_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function profileUsuario(Usuario $usuario = null, UsuarioBLL $usuarioBLL)
+    {
+        if (is_null($usuario)) {
+            $errores['mensajes'] = 'No se ha encontrado el videojuego';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        }
+
+        if (isset($errores['mensajes']))
+            return $this->getErrorResponse($errores, $statusCode);
+
+        $user = $usuarioBLL->perfil($usuario);
         return $this->getResponse($user);
     }
 

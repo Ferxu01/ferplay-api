@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\PlataformaBLL;
+use App\Entity\Plataforma;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 

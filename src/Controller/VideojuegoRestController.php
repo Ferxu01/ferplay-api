@@ -130,21 +130,26 @@ class VideojuegoRestController extends BaseApiController
             array_push($errores['mensajes'], 'No se ha encontrado el videojuego');
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
-            if (empty($data['nombre']) || empty($data['descripcion']) || empty($data['plataforma'])
-            || empty($data['precio']) || empty($data['imagen']))
-                array_push($errores['mensajes'], 'Los campos no pueden estar vacíos');
+            if ($videojuego->getUsuario() !== $this->getUser()) {
+                array_push($errores['mensajes'], 'No puedes editar un videojuego que no has creado');
+                $statusCode = Response::HTTP_FORBIDDEN;
+            } else {
+                if (empty($data['nombre']) || empty($data['descripcion']) || empty($data['plataforma'])
+                    || empty($data['precio']) || empty($data['imagen']))
+                    array_push($errores['mensajes'], 'Los campos no pueden estar vacíos');
 
-            if (!is_int($data['plataforma']))
-                array_push($errores['mensajes'], 'La plataforma debe ser un número');
-            if ($data['plataforma'] <= 0)
-                array_push($errores['mensajes'], 'La plataforma no puede ser 0 o menor que 0');
+                if (!is_int($data['plataforma']))
+                    array_push($errores['mensajes'], 'La plataforma debe ser un número');
+                if ($data['plataforma'] <= 0)
+                    array_push($errores['mensajes'], 'La plataforma no puede ser 0 o menor que 0');
 
-            if (!is_int($data['precio']))
-                array_push($errores['mensajes'], 'El precio debe ser un número');
-            if ($data['precio'] <= 0)
-                array_push($errores['mensajes'], 'El precio no puede ser 0 o menor que 0');
+                if (!is_int($data['precio']))
+                    array_push($errores['mensajes'], 'El precio debe ser un número');
+                if ($data['precio'] <= 0)
+                    array_push($errores['mensajes'], 'El precio no puede ser 0 o menor que 0');
 
-            $statusCode = Response::HTTP_BAD_REQUEST;
+                $statusCode = Response::HTTP_BAD_REQUEST;
+            }
         }
 
         if (count($errores['mensajes']) > 0)

@@ -70,11 +70,17 @@ class Videojuego
      */
     private $liked;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Compra::class, mappedBy="videojuego", orphanRemoval=true)
+     */
+    private $compras;
+
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->setLiked(false);
+        $this->compras = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -234,6 +240,36 @@ class Videojuego
     public function setUsuario(?Usuario $usuario): self
     {
         $this->usuario = $usuario;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Compra[]
+     */
+    public function getCompras(): Collection
+    {
+        return $this->compras;
+    }
+
+    public function addCompra(Compra $compra): self
+    {
+        if (!$this->compras->contains($compra)) {
+            $this->compras[] = $compra;
+            $compra->setVideojuego($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompra(Compra $compra): self
+    {
+        if ($this->compras->removeElement($compra)) {
+            // set the owning side to null (unless already changed)
+            if ($compra->getVideojuego() === $this) {
+                $compra->setVideojuego(null);
+            }
+        }
 
         return $this;
     }

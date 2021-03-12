@@ -71,10 +71,16 @@ class Usuario implements UserInterface, \Serializable
      */
     private $videojuegos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Compra::class, mappedBy="usuario", orphanRemoval=true)
+     */
+    private $compras;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
         $this->videojuegos = new ArrayCollection();
+        $this->compras = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -304,5 +310,35 @@ class Usuario implements UserInterface, \Serializable
             'provincia' => $this->getProvincia()->toArray(),
             'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
+    }
+
+    /**
+     * @return Collection|Compra[]
+     */
+    public function getCompras(): Collection
+    {
+        return $this->compras;
+    }
+
+    public function addCompra(Compra $compra): self
+    {
+        if (!$this->compras->contains($compra)) {
+            $this->compras[] = $compra;
+            $compra->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompra(Compra $compra): self
+    {
+        if ($this->compras->removeElement($compra)) {
+            // set the owning side to null (unless already changed)
+            if ($compra->getUsuario() === $this) {
+                $compra->setUsuario(null);
+            }
+        }
+
+        return $this;
     }
 }

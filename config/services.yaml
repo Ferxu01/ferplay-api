@@ -69,6 +69,12 @@ services:
         public: false
         parent: App\BLL\BaseBLL
 
+    App\BLL\CompraBLL:
+        autowire: false
+        autoconfigure: false
+        public: false
+        parent: App\BLL\BaseBLL
+
     App\BLL\UsuarioBLL:
         autowire: false
         autoconfigure: false
@@ -76,3 +82,4 @@ services:
         parent: App\BLL\BaseBLL
         calls:
             - [ setEncoder, [ '@security.user_password_encoder.generic' ] ]
+            - [ setJWTManager, ['@lexik_jwt_authentication.jwt_manager'] ]
