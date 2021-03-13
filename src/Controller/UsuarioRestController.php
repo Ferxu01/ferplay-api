@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\BLL\CompraBLL;
 use App\BLL\UsuarioBLL;
 use App\Entity\Usuario;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,6 +71,27 @@ class UsuarioRestController extends BaseApiController
 
         $user = $usuarioBLL->nuevo($request, $data);
         return $this->getResponse($user, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route(
+     *     "/profile/buy/history",
+     *     name="get_historial_compras",
+     *     requirements={"_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function getHistorialCompras(CompraBLL $compraBLL)
+    {
+        $compras = $compraBLL->getHistorialCompras();
+
+        if (count($compras) === 0) {
+            $errores['mensajes'] = 'No se ha realizado ninguna compra';
+            return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->getResponse($compras);
     }
 
     /**

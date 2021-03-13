@@ -20,6 +20,15 @@ class CompraBLL extends BaseBLL
         return $this->guardaValidando($compra);
     }
 
+    public function getHistorialCompras()
+    {
+        $compraRepo = $this->em->getRepository(Compra::class);
+        $compras = $compraRepo->findBy([
+            'usuario' => $this->getUser()
+        ]);
+        return $this->entitiesToArray($compras);
+    }
+
     public function toArray(Compra $compra)
     {
         if (is_null($compra))
@@ -27,8 +36,8 @@ class CompraBLL extends BaseBLL
 
         return [
             'id' => $compra->getId(),
-            'usuario' => $compra->getUsuario(),
-            'videojuego' => $compra->getVideojuego(),
+            'usuario' => $compra->getUsuario()->toArray(),
+            'videojuego' => $compra->getVideojuego()->toArray(),
             'cantidad' => $compra->getCantidad(),
             'fechaCompra' => $compra->getFechaCompra()->format('Y-m-d H:i:s')
         ];

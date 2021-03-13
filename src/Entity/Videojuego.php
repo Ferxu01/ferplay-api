@@ -326,4 +326,20 @@ class Videojuego
 
         return $this;
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->getId(),
+            'nombre' => $this->getNombre(),
+            'descripcion' => $this->getDescripcion(),
+            'plataforma' => $this->getPlataforma()->toArray(),
+            'precio' => $this->getPrecio(),
+            'imagen' => $this->getImagen(),
+            'usuario' => $this->getUsuario()->toArray(),
+            'liked' => $this->getLiked(),
+            'favourite' => $this->getFavourite(),
+            'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
+        ];
+    }
 }
