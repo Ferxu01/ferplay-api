@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\VideojuegoBLL;
+use App\Entity\Favorito;
 use App\Entity\Like;
 use App\Entity\Videojuego;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,19 +37,25 @@ class VideojuegoRestController extends BaseApiController
         //Obtener y asignar like a los videojuegos que el usuario haya dado like
         $videojuegosUsuario = $videojuegoRepo->getVideojuegosUsuario($this->getUser()->getId());
         $likeRepo = $this->getDoctrine()->getRepository(Like::class);
+        $favouriteRepo = $this->getDoctrine()->getRepository(Favorito::class);
         $likes = $likeRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+        $favourites = $favouriteRepo->findBy([
             'usuario' => $this->getUser()->getId()
         ]);
 
         foreach ($likes as $like) {
             foreach ($videojuegosUsuario as $videojuego) {
-                /*if ($like->getUsuario() === $this->getUser()) {
+                if ($like->getVideojuego() === $videojuego)
                     $videojuego->setLiked(true);
-                }*/
+            }
+        }
 
-                if ($like->getVideojuego() === $videojuego) {
-                    $videojuego->setLiked(true);
-                }
+        foreach ($favourites as $favourite) {
+            foreach ($videojuegosUsuario as $videojuego) {
+                if ($favourite->getVideojuego() === $videojuego)
+                    $videojuego->setFavourite(true);
             }
         }
 

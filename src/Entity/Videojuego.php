@@ -75,12 +75,23 @@ class Videojuego
      */
     private $compras;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Favorito::class, mappedBy="videojuego", orphanRemoval=true)
+     */
+    private $favoritos;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $favourite;
+
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->setLiked(false);
         $this->compras = new ArrayCollection();
+        $this->favoritos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -270,6 +281,48 @@ class Videojuego
                 $compra->setVideojuego(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Favorito[]
+     */
+    public function getFavoritos(): Collection
+    {
+        return $this->favoritos;
+    }
+
+    public function addFavorito(Favorito $favorito): self
+    {
+        if (!$this->favoritos->contains($favorito)) {
+            $this->favoritos[] = $favorito;
+            $favorito->setVideojuego($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorito(Favorito $favorito): self
+    {
+        if ($this->favoritos->removeElement($favorito)) {
+            // set the owning side to null (unless already changed)
+            if ($favorito->getVideojuego() === $this) {
+                $favorito->setVideojuego(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getFavourite(): ?bool
+    {
+        return $this->favourite;
+    }
+
+    public function setFavourite(bool $favourite): self
+    {
+        $this->favourite = $favourite;
 
         return $this;
     }

@@ -22,7 +22,7 @@ class Usuario implements UserInterface, \Serializable
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $email;
 
@@ -42,7 +42,7 @@ class Usuario implements UserInterface, \Serializable
     private $avatar;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $nickname;
 
@@ -76,11 +76,17 @@ class Usuario implements UserInterface, \Serializable
      */
     private $compras;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Favorito::class, mappedBy="usuario", orphanRemoval=true)
+     */
+    private $favoritos;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
         $this->videojuegos = new ArrayCollection();
         $this->compras = new ArrayCollection();
+        $this->favoritos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -336,6 +342,36 @@ class Usuario implements UserInterface, \Serializable
             // set the owning side to null (unless already changed)
             if ($compra->getUsuario() === $this) {
                 $compra->setUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Favorito[]
+     */
+    public function getFavoritos(): Collection
+    {
+        return $this->favoritos;
+    }
+
+    public function addFavorito(Favorito $favorito): self
+    {
+        if (!$this->favoritos->contains($favorito)) {
+            $this->favoritos[] = $favorito;
+            $favorito->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorito(Favorito $favorito): self
+    {
+        if ($this->favoritos->removeElement($favorito)) {
+            // set the owning side to null (unless already changed)
+            if ($favorito->getUsuario() === $this) {
+                $favorito->setUsuario(null);
             }
         }
 
