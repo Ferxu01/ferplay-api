@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\BLL\FavoritoBLL;
 use App\Entity\Videojuego;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,9 +19,9 @@ class FavoritoRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function addFavoritos(Videojuego $videojuego = null, FavoritoBLL $favoritoBLL)
+    public function addFavoritos(Validation $validation, Videojuego $videojuego = null, FavoritoBLL $favoritoBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
@@ -46,9 +47,9 @@ class FavoritoRestController extends BaseApiController
      *     methods={"DELETE"}
      * )
      */
-    public function eliminaFavoritos(Videojuego $videojuego = null, FavoritoBLL $favoritoBLL)
+    public function eliminaFavoritos(Validation $validation, Videojuego $videojuego = null, FavoritoBLL $favoritoBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {

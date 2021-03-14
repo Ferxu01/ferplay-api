@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\BLL\LikeBLL;
 use App\Entity\Videojuego;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,9 +19,9 @@ class LikeRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function darLikeVideojuego(Videojuego $videojuego = null, LikeBLL $likeBLL)
+    public function darLikeVideojuego(Validation $validation, Videojuego $videojuego = null, LikeBLL $likeBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
@@ -46,9 +47,9 @@ class LikeRestController extends BaseApiController
      *     methods={"DELETE"}
      * )
      */
-    public function eliminarLikeVideojuego(Videojuego $videojuego = null, LikeBLL $likeBLL)
+    public function eliminarLikeVideojuego(Validation $validation, Videojuego $videojuego = null, LikeBLL $likeBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {

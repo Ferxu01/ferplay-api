@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\BLL\CompraBLL;
 use App\BLL\UsuarioBLL;
 use App\Entity\Usuario;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -43,21 +44,22 @@ class UsuarioRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function register(Request $request, UsuarioBLL $usuarioBLL)
+    public function register(Validation $validation, Request $request, UsuarioBLL $usuarioBLL)
     {
         $errores['mensaje'] = [];
         $data = $this->getContent($request);
         $usuarioRepo = $this->getDoctrine()->getRepository(Usuario::class);
         $usuarios = $usuarioRepo->findAll();
 
-        if (empty($data['nombre']) || empty($data['apellidos']) || empty($data['nickname'])
-        || empty($data['email']) || empty($data['password']) || empty($data['avatar'])
-        || empty($data['provincia']))
+        if ($validation->datosUsuarioVacios(
+            $data['nombre'], $data['apellidos'], $data['nickname'], $data['email'],
+            $data['password'], $data['avatar'], $data['provincia']
+        ))
             array_push($errores['mensaje'], 'Los campos no pueden estar vacíos');
 
-        if (!is_int($data['provincia']))
+        if (!$validation->esNumerico($data['provincia']))
             array_push($errores['mensaje'], 'La provincia debe ser un número');
-        if ($data['provincia'] <= 0)
+        if ($validation->esNumeroNegativo($data['provincia']))
             array_push($errores['mensaje'], 'La provincia no puede ser 0 o menor de 0');
 
         foreach ($usuarios as $usuario) {
@@ -97,7 +99,7 @@ class UsuarioRestController extends BaseApiController
     /**
      * @Route(
      *     "/profile/me.{_format}",
-     *     name="profile",
+     *     name="profile_logged",
      *     requirements={"_format": "json"},
      *     defaults={"_format": "json"},
      *     methods={"GET"}
@@ -118,10 +120,10 @@ class UsuarioRestController extends BaseApiController
      *     methods={"GET"}
      * )
      */
-    public function profileUsuario(Usuario $usuario = null, UsuarioBLL $usuarioBLL)
+    public function profileUsuario(Validation $validation, Usuario $usuario = null, UsuarioBLL $usuarioBLL)
     {
-        if (is_null($usuario)) {
-            $errores['mensajes'] = 'No se ha encontrado el videojuego';
+        if (!$validation->existeEntidad($usuario)) {
+            $errores['mensajes'] = 'No se ha encontrado el usuario';
             $statusCode = Response::HTTP_NOT_FOUND;
         }
 

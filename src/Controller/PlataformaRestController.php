@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\PlataformaBLL;
-use App\Entity\Plataforma;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,11 +18,11 @@ class PlataformaRestController extends BaseApiController
      *     methods={"GET"}
      * )
      */
-    public function getAll(PlataformaBLL $plataformaBLL)
+    public function getAll(Validation $validation, PlataformaBLL $plataformaBLL)
     {
         $plataformas = $plataformaBLL->getAll();
 
-        if (is_null($plataformas)) {
+        if (!$validation->existeEntidad($plataformas)) {
             $errores['mensaje'] = 'No se han encontrado plataformas';
 
             return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);

@@ -6,6 +6,7 @@ use App\BLL\VideojuegoBLL;
 use App\Entity\Favorito;
 use App\Entity\Like;
 use App\Entity\Videojuego;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -71,9 +72,9 @@ class VideojuegoRestController extends BaseApiController
      *     methods={"GET"}
      * )
      */
-    public function getOne(Videojuego $videojuego = null, VideojuegoBLL $videojuegoBLL)
+    public function getOne(Validation $validation, Videojuego $videojuego = null, VideojuegoBLL $videojuegoBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensaje'] = 'El videojuego no existe';
             return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
         }
@@ -90,28 +91,27 @@ class VideojuegoRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function nuevo(Request $request, VideojuegoBLL $videojuegoBLL)
+    public function nuevo(Validation $validation, Request $request, VideojuegoBLL $videojuegoBLL)
     {
         $errores['mensaje'] = [];
 
         $data = $this->getContent($request);
-        if (empty($data['nombre']) || empty($data['descripcion'])
-            || empty($data['precio']) || empty($data['imagen'])
-            || empty($data['plataforma'])
-        )
+        if ($validation->datosVideojuegosVacios(
+            $data['nombre'], $data['descripcion'], $data['precio'], $data['imagen'], $data['plataforma']
+        ))
             array_push($errores['mensaje'],'Los campos no pueden estar vacíos');
 
-        if (!is_int($data['plataforma']))
+        if (!$validation->esNumerico($data['plataforma']))
             array_push($errores['mensaje'],'La plataforma debe ser un número');
-        if ($data['plataforma'] <= 0)
+        if ($validation->esNumeroNegativo($data['plataforma']))
             array_push($errores['mensaje'], 'La plataforma no puede ser 0 o menor que 0');
 
-        if (!is_int($data['precio']))
+        if (!$validation->esNumerico($data['precio']))
             array_push($errores['mensaje'], 'El precio debe ser un número');
-        if ($data['precio'] <= 0)
+        if ($validation->esNumeroNegativo($data['precio']))
             array_push($errores['mensaje'], 'El precio no puede ser 0 o menor que 0');
 
-        if (count($errores) > 0)
+        if (count($errores['mensaje']) > 0)
             return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
 
 
@@ -128,12 +128,12 @@ class VideojuegoRestController extends BaseApiController
      *     methods={"PUT"}
      * )
      */
-    public function editar(Request $request, Videojuego $videojuego = null, VideojuegoBLL $videojuegoBLL)
+    public function editar(Validation $validation, Request $request, Videojuego $videojuego = null, VideojuegoBLL $videojuegoBLL)
     {
         $data = $this->getContent($request);
         $errores['mensajes'] = [];
 
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             array_push($errores['mensajes'], 'No se ha encontrado el videojuego');
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
@@ -141,18 +141,19 @@ class VideojuegoRestController extends BaseApiController
                 array_push($errores['mensajes'], 'No puedes editar un videojuego que no has creado');
                 $statusCode = Response::HTTP_FORBIDDEN;
             } else {
-                if (empty($data['nombre']) || empty($data['descripcion']) || empty($data['plataforma'])
-                    || empty($data['precio']) || empty($data['imagen']))
+                if ($validation->datosVideojuegosVacios(
+                    $data['nombre'], $data['descripcion'], $data['precio'], $data['imagen'], $data['plataforma']
+                ))
                     array_push($errores['mensajes'], 'Los campos no pueden estar vacíos');
 
-                if (!is_int($data['plataforma']))
+                if (!$validation->esNumerico($data['plataforma']))
                     array_push($errores['mensajes'], 'La plataforma debe ser un número');
-                if ($data['plataforma'] <= 0)
+                if ($validation->esNumeroNegativo($data['plataforma']))
                     array_push($errores['mensajes'], 'La plataforma no puede ser 0 o menor que 0');
 
-                if (!is_int($data['precio']))
+                if (!$validation->esNumerico($data['precio']))
                     array_push($errores['mensajes'], 'El precio debe ser un número');
-                if ($data['precio'] <= 0)
+                if ($validation->esNumeroNegativo($data['precio']))
                     array_push($errores['mensajes'], 'El precio no puede ser 0 o menor que 0');
 
                 $statusCode = Response::HTTP_BAD_REQUEST;
@@ -175,9 +176,9 @@ class VideojuegoRestController extends BaseApiController
      *     methods={"DELETE"}
      * )
      */
-    public function borrar(Videojuego $videojuego = null, VideojuegoBLL $videojuegoBLL)
+    public function borrar(Validation $validation, Videojuego $videojuego = null, VideojuegoBLL $videojuegoBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensaje'] = 'El videojuego no se ha encontrado';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {

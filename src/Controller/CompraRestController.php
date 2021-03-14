@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\BLL\CompraBLL;
 use App\Entity\Videojuego;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,17 +20,17 @@ class CompraRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function nueva(Request $request, Videojuego $videojuego = null, CompraBLL $compraBLL)
+    public function nueva(Validation $validation, Request $request, Videojuego $videojuego = null, CompraBLL $compraBLL)
     {
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensaje'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
             $data = $this->getContent($request);
 
-            if (!is_int($data['cantidad'])) {
+            if (!$validation->esNumerico($data['cantidad'])) {
                 $errores['mensaje'] = 'La cantidad debe ser un número';
-            } elseif ($data['cantidad'] <= 0) {
+            } elseif ($validation->esNumeroNegativo($data['cantidad'])) {
                 $errores['mensaje'] = 'La cantidad debe ser mayor que 0';
             }
 

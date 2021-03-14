@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\BLL\ComentarioBLL;
 use App\Entity\Comentario;
 use App\Entity\Videojuego;
+use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,12 +21,12 @@ class ComentarioRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
-    public function post(Request $request, Videojuego $videojuego = null, ComentarioBLL $comentarioBLL)
+    public function post(Validation $validation, Request $request, Videojuego $videojuego = null, ComentarioBLL $comentarioBLL)
     {
         $statusCode = Response::HTTP_BAD_REQUEST;
         $data = $this->getContent($request);
 
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensaje'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else if (empty($data['comentario'])) {
@@ -49,11 +50,11 @@ class ComentarioRestController extends BaseApiController
      *     methods={"DELETE"}
      * )
      */
-    public function delete(int $idComentario, Videojuego $videojuego = null, ComentarioBLL $comentarioBLL)
+    public function delete(Validation $validation, int $idComentario, Videojuego $videojuego = null, ComentarioBLL $comentarioBLL)
     {
         $comentarioRepository = $this->getDoctrine()->getRepository(Comentario::class);
 
-        if (is_null($videojuego)) {
+        if (!$validation->existeEntidad($videojuego)) {
             $errores['mensaje'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
@@ -61,12 +62,12 @@ class ComentarioRestController extends BaseApiController
                 'id' => $idComentario
             ]);
 
-            if (!is_null($comentario) && $this->getUser()->getId() !== $comentario->getIdUsuario()) {
+            if ($validation->existeEntidad($comentario) && $this->getUser()->getId() !== $comentario->getIdUsuario()) {
                 $errores['mensaje'] = 'No puedes eliminar comentarios que no hayas creado';
                 $statusCode = Response::HTTP_FORBIDDEN;
             }
 
-            if (is_null($comentario)) {
+            if ($validation->existeEntidad($comentario)) {
                 $errores['mensaje'] = 'El comentario no existe';
                 $statusCode = Response::HTTP_NOT_FOUND;
             }
