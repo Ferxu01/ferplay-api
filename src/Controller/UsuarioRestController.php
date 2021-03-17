@@ -66,6 +66,10 @@ class UsuarioRestController extends BaseApiController
             if ($data['nickname'] === $usuario->getNickname()) {
                 array_push($errores['mensaje'], 'Ya existe un usuario con ese nickname');
             }
+
+            if ($data['email'] === $usuario->getEmail()) {
+                array_push($errores['mensaje'], 'Ya existe un usuario con ese email');
+            }
         }
 
         if (count($errores['mensaje']) > 0)

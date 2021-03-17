@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\BLL;
-
 
 use App\Entity\Comentario;
 use App\Entity\Videojuego;
@@ -11,12 +9,22 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ComentarioBLL extends BaseBLL
 {
+    public function obtener(Videojuego $videojuego)
+    {
+        $comentarioRepo = $this->em->getRepository(Comentario::class);
+        $comentarios = $comentarioRepo->findBy([
+            'videojuego' => $videojuego
+        ]);
+
+        return $this->entitiesToArray($comentarios);
+    }
+
     public function nuevo(Request $request, Videojuego $videojuego, array $data)
     {
         $comentario = new Comentario();
 
         $comentario->setTexto($data['comentario'])
-            ->setIdUsuario($this->getUser()->getId())
+            ->setUsuario($this->getUser())
             ->setVideojuego($videojuego)
             ->setFechaCreacion(new DateTime());
 
@@ -38,7 +46,8 @@ class ComentarioBLL extends BaseBLL
             'id' => $comentario->getId(),
             'texto' => $comentario->getTexto(),
             'fechaCreacion' => $comentario->getFechaCreacion()->format('Y-m-d H:i:s'),
-            'idUsuario' => $comentario->getIdUsuario()
+            'usuario' => $comentario->getUsuario()->toArray(),
+            'videojuego' => $comentario->getVideojuego()->getId()
         ];
     }
 }

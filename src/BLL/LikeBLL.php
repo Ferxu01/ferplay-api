@@ -13,6 +13,7 @@ class LikeBLL extends BaseBLL
         $like->setVideojuego($videojuego);
         $like->setUsuario($this->getUser());
         $videojuego->setLiked(true);
+        $videojuego->setNumLikes($videojuego->getNumLikes()+1);
 
         return $this->guardaValidando($like);
     }
@@ -25,6 +26,7 @@ class LikeBLL extends BaseBLL
             'usuario' => $this->getUser()
         ]);
         $videojuego->setLiked(false);
+        $videojuego->setNumLikes($videojuego->getNumLikes()-1);
 
         $this->em->remove($like);
         $this->em->flush();

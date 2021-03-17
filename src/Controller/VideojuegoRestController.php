@@ -182,13 +182,13 @@ class VideojuegoRestController extends BaseApiController
             $errores['mensaje'] = 'El videojuego no se ha encontrado';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
-            if ($this->getUser()->getId() !== $videojuego->getId()) {
+            if ($this->getUser()->getId() !== $videojuego->getUsuario()->getId()) {
                 $errores['mensaje'] = 'No puedes eliminar un videojuego que no has creado';
                 $statusCode = Response::HTTP_FORBIDDEN;
             }
         }
 
-        if (count($errores) > 0)
+        if (isset($errores))
             return $this->getErrorResponse($errores, $statusCode);
 
         $videojuegoBLL->borrar($videojuego);

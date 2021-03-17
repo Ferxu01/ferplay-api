@@ -28,14 +28,15 @@ class Comentario
     private $fechaCreacion;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $idUsuario;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Videojuego::class, inversedBy="comentarios")
      */
     private $videojuego;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Usuario::class, inversedBy="comentarios")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $usuario;
 
     public function getId(): ?int
     {
@@ -66,18 +67,6 @@ class Comentario
         return $this;
     }
 
-    public function getIdUsuario(): ?int
-    {
-        return $this->idUsuario;
-    }
-
-    public function setIdUsuario(int $idUsuario): self
-    {
-        $this->idUsuario = $idUsuario;
-
-        return $this;
-    }
-
     public function getVideojuego(): ?Videojuego
     {
         return $this->videojuego;
@@ -86,6 +75,18 @@ class Comentario
     public function setVideojuego(?Videojuego $videojuego): self
     {
         $this->videojuego = $videojuego;
+
+        return $this;
+    }
+
+    public function getUsuario(): ?Usuario
+    {
+        return $this->usuario;
+    }
+
+    public function setUsuario(?Usuario $usuario): self
+    {
+        $this->usuario = $usuario;
 
         return $this;
     }

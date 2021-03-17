@@ -14,6 +14,32 @@ class ComentarioRestController extends BaseApiController
 {
     /**
      * @Route(
+     *     "/videojuegos/{id}/comentarios.{_format}",
+     *     name="get_comentarios",
+     *     requirements={"id": "\d+", "_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function getComentarios(Validation $validation, Videojuego $videojuego, ComentarioBLL $comentarioBLL)
+    {
+        if (!$validation->existeEntidad($videojuego)) {
+            $errores['mensaje'] = 'No se ha encontrado el videojuego';
+        } else {
+            $comentarios = $comentarioBLL->obtener($videojuego);
+
+            if (count($comentarios) === 0)
+                $errores['mensaje'] = 'No se encontraron comentarios';
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
+
+        return $this->getResponse($comentarios);
+    }
+
+    /**
+     * @Route(
      *     "/videojuegos/{id}/comentario.{_format}",
      *     name="post_comentario",
      *     requirements={"_format": "json", "id": "\d+"},
@@ -45,7 +71,7 @@ class ComentarioRestController extends BaseApiController
      * @Route(
      *     "/videojuegos/{id}/comentario/{idComentario}.{_format}",
      *     name="delete_comentario",
-     *     requirements={"_format": "json", "id": "\d+"},
+     *     requirements={"_format": "json", "id": "\d+", "idComentario": "\d+"},
      *     defaults={"_format": "json"},
      *     methods={"DELETE"}
      * )
@@ -58,18 +84,16 @@ class ComentarioRestController extends BaseApiController
             $errores['mensaje'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
-            $comentario = $comentarioRepository->findOneBy([
-                'id' => $idComentario
-            ]);
+            $comentario = $comentarioRepository->find($idComentario);
 
-            if ($validation->existeEntidad($comentario) && $this->getUser()->getId() !== $comentario->getIdUsuario()) {
-                $errores['mensaje'] = 'No puedes eliminar comentarios que no hayas creado';
-                $statusCode = Response::HTTP_FORBIDDEN;
-            }
-
-            if ($validation->existeEntidad($comentario)) {
+            if (!$validation->existeEntidad($comentario)) {
                 $errores['mensaje'] = 'El comentario no existe';
                 $statusCode = Response::HTTP_NOT_FOUND;
+            } else {
+                if ($this->getUser()->getId() !== $comentario->getUsuario()->getId()) {
+                    $errores['mensaje'] = 'No puedes eliminar comentarios que no hayas creado';
+                    $statusCode = Response::HTTP_FORBIDDEN;
+                }
             }
         }
 

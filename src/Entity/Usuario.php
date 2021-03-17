@@ -81,12 +81,18 @@ class Usuario implements UserInterface, \Serializable
      */
     private $favoritos;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Comentario::class, mappedBy="usuario", orphanRemoval=true)
+     */
+    private $comentarios;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
         $this->videojuegos = new ArrayCollection();
         $this->compras = new ArrayCollection();
         $this->favoritos = new ArrayCollection();
+        $this->comentarios = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -372,6 +378,36 @@ class Usuario implements UserInterface, \Serializable
             // set the owning side to null (unless already changed)
             if ($favorito->getUsuario() === $this) {
                 $favorito->setUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Comentario[]
+     */
+    public function getComentarios(): Collection
+    {
+        return $this->comentarios;
+    }
+
+    public function addComentario(Comentario $comentario): self
+    {
+        if (!$this->comentarios->contains($comentario)) {
+            $this->comentarios[] = $comentario;
+            $comentario->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComentario(Comentario $comentario): self
+    {
+        if ($this->comentarios->removeElement($comentario)) {
+            // set the owning side to null (unless already changed)
+            if ($comentario->getUsuario() === $this) {
+                $comentario->setUsuario(null);
             }
         }
 

@@ -85,6 +85,11 @@ class Videojuego
      */
     private $favourite;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $numLikes;
+
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
@@ -341,5 +346,17 @@ class Videojuego
             'favourite' => $this->getFavourite(),
             'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
+    }
+
+    public function getNumLikes(): ?int
+    {
+        return $this->numLikes;
+    }
+
+    public function setNumLikes(int $numLikes): self
+    {
+        $this->numLikes = $numLikes;
+
+        return $this;
     }
 }
