@@ -140,6 +140,40 @@ class UsuarioRestController extends BaseApiController
 
     /**
      * @Route(
+     *     "/profile/me.{_format}",
+     *     name="update_profile",
+     *     requirements={"_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"PUT"}
+     * )
+     */
+    public function editarPerfil(Validation $validation, Request $request, UsuarioBLL $usuarioBLL)
+    {
+        $errores['mensajes'] = [];
+
+        $data = $this->getContent($request);
+        //Comprobar error al editar el perfil, problema con el token
+        if ($validation->datosUsuarioVacios(
+            $data['nombre'], $data['apellidos'], $data['nickname'],
+            $data['email'], $this->getUser()->getPassword(), $this->getUser()->getAvatar(), $data['provincia']
+        ))
+            array_push($errores['mensajes'], 'Los campos no pueden estar vacíos');
+
+        if (!$validation->esNumerico($data['provincia']))
+            array_push($errores['mensajes'], 'La provincia debe ser un número');
+
+        if ($validation->esNumeroNegativo($data['provincia']))
+            array_push($errores['mensajes'], 'La provincia no puede ser negativo');
+
+        if (count($errores['mensajes']) > 0)
+            return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
+
+        $usuario = $usuarioBLL->editarPerfil($request, $data, $this->getUser());
+        return $this->getResponse($usuario);
+    }
+
+    /**
+     * @Route(
      *     "/profile/edit/password.{_format}",
      *     name="update_password",
      *     requirements={"_format": "json"},

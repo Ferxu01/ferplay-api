@@ -63,24 +63,35 @@ class UsuarioBLL extends BaseBLL
         throw new Exception('No se ha podido cargar la imagen del usuario');
     }
 
-    public function nuevo(Request $request, array $data)
+    private function updateUserData(Request $request, array $data, Usuario $user = null)
     {
         $provinciaRepository = $this->em->getRepository(Provincia::class);
         $provincia = $provinciaRepository->findOneBy([
             'id' => $data['provincia']
         ]);
 
-        $user = new Usuario();
+        if (is_null($user)) {
+            $user = new Usuario();
+            $user->setAvatar($data['avatar'])
+                ->setPassword($this->encoder->encodePassword($user, $data['password']));
+        }
+
         $user->setNombre($data['nombre'])
             ->setApellidos($data['apellidos'])
             ->setNickname($data['nickname'])
             ->setEmail($data['email'])
-            ->setPassword($this->encoder->encodePassword($user, $data['password']))
-            ->setAvatar($data['avatar'])
             ->setProvincia($provincia)
             ->setFechaCreacion(new DateTime());
 
-        return $this->guardaAvatar($request, $user, $data);
+        if (is_null($user))
+            return $this->guardaAvatar($request, $user, $data);
+
+        return $this->guardaValidando($user);
+    }
+
+    public function nuevo(Request $request, array $data)
+    {
+        return $this->updateUserData($request, $data);
     }
 
     public function miPerfil()
@@ -93,6 +104,11 @@ class UsuarioBLL extends BaseBLL
     public function perfil(Usuario $usuario)
     {
         return $this->toArray($usuario);
+    }
+
+    public function editarPerfil(Request $request, array $data, Usuario $user)
+    {
+        return $this->updateUserData($request, $data, $user);
     }
 
     public function editarPassword(string $password)
