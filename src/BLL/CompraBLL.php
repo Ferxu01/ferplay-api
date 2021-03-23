@@ -15,7 +15,8 @@ class CompraBLL extends BaseBLL
         $compra->setUsuario($this->getUser())
             ->setVideojuego($videojuego)
             ->setCantidad($data['cantidad'])
-            ->setFechaCompra(new DateTime());
+            ->setFechaCompra(new DateTime())
+            ->setPrecio($videojuego->getPrecio());
 
         return $this->guardaValidando($compra);
     }
@@ -39,6 +40,7 @@ class CompraBLL extends BaseBLL
             'usuario' => $compra->getUsuario()->toArray(),
             'videojuego' => $compra->getVideojuego()->toArray(),
             'cantidad' => $compra->getCantidad(),
+            'precio' => $compra->getPrecio(),
             'fechaCompra' => $compra->getFechaCompra()->format('Y-m-d H:i:s')
         ];
     }

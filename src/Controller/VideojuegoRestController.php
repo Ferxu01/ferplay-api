@@ -25,6 +25,9 @@ class VideojuegoRestController extends BaseApiController
      */
     public function getAll(VideojuegoBLL $videojuegoBLL)
     {
+        //Asignar "me": true al usuario logueado
+        $this->getUser()->setMe(true);
+
         $videojuegoRepo = $this->getDoctrine()->getRepository(Videojuego::class);
 
         //Obtener todos los videojuegos

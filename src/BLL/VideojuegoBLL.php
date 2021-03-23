@@ -64,7 +64,9 @@ class VideojuegoBLL extends BaseBLL
             ->setUsuario($this->getUser())
             ->setFechaCreacion(new DateTime())
             ->setLiked(false)
-            ->setFavourite(false);
+            ->setFavourite(false)
+            ->setNumLikes(0)
+            ->setStock($data['stock'] || 1);
 
         return $this->guardaImagen($request, $videojuego, $data);
     }
@@ -95,6 +97,8 @@ class VideojuegoBLL extends BaseBLL
             'usuario' => $videojuego->getUsuario()->toArray(),
             'liked' => $videojuego->getLiked(),
             'favourite' => $videojuego->getFavourite(),
+            'numLikes' => $videojuego->getNumLikes(),
+            'stock' => $videojuego->getStock(),
             'fechaCreacion' => $videojuego->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }

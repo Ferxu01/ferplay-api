@@ -86,6 +86,16 @@ class Usuario implements UserInterface, \Serializable
      */
     private $comentarios;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $me;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CarroCompra::class, mappedBy="usuario", orphanRemoval=true)
+     */
+    private $carroCompras;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
@@ -93,6 +103,7 @@ class Usuario implements UserInterface, \Serializable
         $this->compras = new ArrayCollection();
         $this->favoritos = new ArrayCollection();
         $this->comentarios = new ArrayCollection();
+        $this->carroCompras = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -176,7 +187,8 @@ class Usuario implements UserInterface, \Serializable
             $this->email,
             $this->password,
             $this->avatar,
-            $this->provincia
+            $this->provincia,
+            $this->me
         ]);
     }
 
@@ -190,7 +202,8 @@ class Usuario implements UserInterface, \Serializable
             $this->email,
             $this->password,
             $this->avatar,
-            $this->provincia
+            $this->provincia,
+            $this->me
             ) = $this->unserialize($serialized);
     }
 
@@ -245,6 +258,18 @@ class Usuario implements UserInterface, \Serializable
     public function setProvincia(?Provincia $provincia): self
     {
         $this->provincia = $provincia;
+
+        return $this;
+    }
+
+    public function getMe(): ?bool
+    {
+        return $this->me;
+    }
+
+    public function setMe(bool $me): self
+    {
+        $this->me = $me;
 
         return $this;
     }
@@ -320,6 +345,7 @@ class Usuario implements UserInterface, \Serializable
             'password' => $this->getPassword(),
             'avatar' => $this->getAvatar(),
             'provincia' => $this->getProvincia()->toArray(),
+            'me' => $this->getMe(),
             'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }
@@ -408,6 +434,36 @@ class Usuario implements UserInterface, \Serializable
             // set the owning side to null (unless already changed)
             if ($comentario->getUsuario() === $this) {
                 $comentario->setUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CarroCompra[]
+     */
+    public function getCarroCompras(): Collection
+    {
+        return $this->carroCompras;
+    }
+
+    public function addCarroCompra(CarroCompra $carroCompra): self
+    {
+        if (!$this->carroCompras->contains($carroCompra)) {
+            $this->carroCompras[] = $carroCompra;
+            $carroCompra->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCarroCompra(CarroCompra $carroCompra): self
+    {
+        if ($this->carroCompras->removeElement($carroCompra)) {
+            // set the owning side to null (unless already changed)
+            if ($carroCompra->getUsuario() === $this) {
+                $carroCompra->setUsuario(null);
             }
         }
 

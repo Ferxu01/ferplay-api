@@ -90,6 +90,16 @@ class Videojuego
      */
     private $numLikes;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $stock;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CarroCompra::class, mappedBy="videojuego")
+     */
+    private $carroCompras;
+
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
@@ -97,6 +107,7 @@ class Videojuego
         $this->setLiked(false);
         $this->compras = new ArrayCollection();
         $this->favoritos = new ArrayCollection();
+        $this->carroCompras = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -344,6 +355,7 @@ class Videojuego
             'usuario' => $this->getUsuario()->toArray(),
             'liked' => $this->getLiked(),
             'favourite' => $this->getFavourite(),
+            'stock' => $this->getStock(),
             'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
     }
@@ -356,6 +368,48 @@ class Videojuego
     public function setNumLikes(int $numLikes): self
     {
         $this->numLikes = $numLikes;
+
+        return $this;
+    }
+
+    public function getStock(): ?int
+    {
+        return $this->stock;
+    }
+
+    public function setStock(int $stock): self
+    {
+        $this->stock = $stock;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CarroCompra[]
+     */
+    public function getCarroCompras(): Collection
+    {
+        return $this->carroCompras;
+    }
+
+    public function addCarroCompra(CarroCompra $carroCompra): self
+    {
+        if (!$this->carroCompras->contains($carroCompra)) {
+            $this->carroCompras[] = $carroCompra;
+            $carroCompra->setVideojuego($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCarroCompra(CarroCompra $carroCompra): self
+    {
+        if ($this->carroCompras->removeElement($carroCompra)) {
+            // set the owning side to null (unless already changed)
+            if ($carroCompra->getVideojuego() === $this) {
+                $carroCompra->setVideojuego(null);
+            }
+        }
 
         return $this;
     }
