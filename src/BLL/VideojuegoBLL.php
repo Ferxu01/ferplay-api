@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class VideojuegoBLL extends BaseBLL
 {
+    private $urlDirVideojuegos = '..\public\img\videogames\\';
+
     private function guardaImagen($request, $videojuego, $data) {
         $arr_imagen = explode (',', $data['imagen']);
         if (count($arr_imagen) < 2)
@@ -19,6 +21,8 @@ class VideojuegoBLL extends BaseBLL
         $imgFoto = base64_decode($arr_imagen[1]);
         if (!is_null($imgFoto))
         {
+            unlink($this->urlDirVideojuegos . $videojuego->getImagen());
+
             //Obtener nombre de la imagen formateando el nombre del videojuego
             $nombreArray = explode(' ', $videojuego->getNombre());
             $formatNombre = implode('-', $nombreArray);
@@ -78,6 +82,7 @@ class VideojuegoBLL extends BaseBLL
 
     public function borrar($videojuego)
     {
+        unlink($this->urlDirVideojuegos . $videojuego->getImagen());
         $this->em->remove($videojuego);
         $this->em->flush();
     }

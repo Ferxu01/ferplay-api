@@ -13,6 +13,7 @@ class BaseApiController extends AbstractController
     public function getContent(Request $request)
     {
         $data = json_decode($request->getContent(), true);
+
         if (is_null($data))
             throw new BadRequestHttpException('No se han recibido los datos');
         return $data;

@@ -20,6 +20,8 @@ class UsuarioBLL extends BaseBLL
     /** @var JWTTokenManagerInterface */
     private $jwtManager;
 
+    private $urlDirUsuarios = '..\public\img\users\\';
+
     public function setJWTManager(JWTTokenManagerInterface $jwtManager)
     {
         $this->jwtManager = $jwtManager;
@@ -121,6 +123,8 @@ class UsuarioBLL extends BaseBLL
 
     public function editarAvatar(Request $request, array $data)
     {
+        if ($this->getUser()->getAvatar() !== '')
+            unlink($this->urlDirUsuarios . $this->getUser()->getAvatar());
         return $this->guardaAvatar($request, $this->getUser(), $data);
     }
 

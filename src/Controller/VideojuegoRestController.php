@@ -100,7 +100,8 @@ class VideojuegoRestController extends BaseApiController
 
         $data = $this->getContent($request);
         if ($validation->datosVideojuegosVacios(
-            $data['nombre'], $data['descripcion'], $data['precio'], $data['imagen'], $data['plataforma']
+            $data['nombre'], $data['descripcion'], $data['precio'],
+            $data['imagen'], $data['plataforma'], $data['stock']
         ))
             array_push($errores['mensaje'],'Los campos no pueden estar vacíos');
 
@@ -114,9 +115,13 @@ class VideojuegoRestController extends BaseApiController
         if ($validation->esNumeroNegativo($data['precio']))
             array_push($errores['mensaje'], 'El precio no puede ser 0 o menor que 0');
 
+        if (!$validation->esNumerico($data['stock']))
+            array_push($errores['mensaje'], 'El stock debe ser un número');
+        if ($validation->esNumeroNegativo($data['stock']))
+            array_push($errores['mensaje'], 'El stock no puede ser 0 o menor que 0');
+
         if (count($errores['mensaje']) > 0)
             return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
-
 
         $videojuego = $videojuegoBLL->nuevo($request, $data);
         return $this->getResponse($videojuego, Response::HTTP_CREATED);
@@ -145,7 +150,8 @@ class VideojuegoRestController extends BaseApiController
                 $statusCode = Response::HTTP_FORBIDDEN;
             } else {
                 if ($validation->datosVideojuegosVacios(
-                    $data['nombre'], $data['descripcion'], $data['precio'], $data['imagen'], $data['plataforma']
+                    $data['nombre'], $data['descripcion'], $data['precio'],
+                    $data['imagen'], $data['plataforma'], $data['stock']
                 ))
                     array_push($errores['mensajes'], 'Los campos no pueden estar vacíos');
 
@@ -158,6 +164,11 @@ class VideojuegoRestController extends BaseApiController
                     array_push($errores['mensajes'], 'El precio debe ser un número');
                 if ($validation->esNumeroNegativo($data['precio']))
                     array_push($errores['mensajes'], 'El precio no puede ser 0 o menor que 0');
+
+                if (!$validation->esNumerico($data['stock']))
+                    array_push($errores['mensajes'], 'El stock debe ser un número');
+                if ($validation->esNumeroNegativo($data['stock']))
+                    array_push($errores['mensajes'], 'El stock no puede ser 0 o menor que 0');
 
                 $statusCode = Response::HTTP_BAD_REQUEST;
             }

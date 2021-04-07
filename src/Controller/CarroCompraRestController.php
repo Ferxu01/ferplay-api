@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\CarroCompraBLL;
+use App\Entity\CarroCompra;
 use App\Entity\Videojuego;
 use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,19 +56,36 @@ class CarroCompraRestController extends BaseApiController
 
     /**
      * @Route(
-     *     "/videojuegos/{id}/carro.{_format}",
+     *     "/videojuegos/{id}/carro/{idCarroCompra}.{_format}",
      *     name="delete_videojuego_carro",
      *     requirements={"id": "\d+", "_format": "json"},
      *     defaults={"_format": "json"},
      *     methods={"DELETE"}
      * )
      */
-    public function eliminarVideojuegoCarro(Validation $validation, Videojuego $videojuego = null, CarroCompraBLL $carroCompraBLL)
+    public function eliminarVideojuegoCarro(Validation $validation, int $idCarroCompra, Videojuego $videojuego = null, CarroCompraBLL $carroCompraBLL)
     {
+        $carroRepo = $this->getDoctrine()->getRepository(CarroCompra::class);
+
         if (!$validation->existeEntidad($videojuego)) {
-            $errores['mensajes'] = 'No has añadido el videojuego en el carro aún';
-            return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
+            $errores['mensajes'] = 'No existe el videojuego';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        } else {
+            $videojuegoCarro = $carroRepo->find($idCarroCompra);
+
+            if (!$validation->existeEntidad($videojuegoCarro)) {
+                $errores['mensajes'] = 'El videojuego no existe en el carro';
+                $statusCode = Response::HTTP_NOT_FOUND;
+            } else {
+                if ($this->getUser()->getId() !== $videojuegoCarro->getUsuario()->getId()) {
+                    $errores['mensajes'] = 'No puedes eliminar videojuego del carro que no hayas añadido';
+                    $statusCode = Response::HTTP_FORBIDDEN;
+                }
+            }
         }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, $statusCode);
 
         $carroCompraBLL->eliminarVideojuegoCarro($videojuego->getId());
         return $this->getResponse();

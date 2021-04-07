@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+use App\Entity\Compra;
+use App\Entity\Videojuego;
+
 class Validation
 {
     public function existeEntidad($entidad)
@@ -10,9 +13,11 @@ class Validation
     }
 
     public function datosVideojuegosVacios(
-        string $nombre, string $desc, int $precio, string $imagen, int $plataforma
+        string $nombre, string $desc, int $precio, string $imagen,
+        int $plataforma, int $stock
     ) {
-        return empty($nombre) || empty($desc) || empty($precio) || empty($imagen) || empty($plataforma);
+        return empty($nombre) || empty($desc) || empty($precio)
+            || empty($imagen) || empty($plataforma) || empty($stock);
     }
 
     public function datosUsuarioVacios(
@@ -33,5 +38,10 @@ class Validation
     public function esNumeroNegativo(int $dato)
     {
         return $dato <= 0;
+    }
+
+    public function stockValido(Videojuego $videojuego, int $stock)
+    {
+        return $videojuego->getStock() >= $stock;
     }
 }

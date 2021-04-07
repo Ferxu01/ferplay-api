@@ -34,6 +34,10 @@ class CompraRestController extends BaseApiController
                 $errores['mensaje'] = 'La cantidad debe ser mayor que 0';
             }
 
+            if (!$validation->stockValido($videojuego, $data['cantidad'])) {
+                $errores['mensaje'] = 'No hay stock disponible para esta compra';
+            }
+
             $statusCode = Response::HTTP_BAD_REQUEST;
         }
 

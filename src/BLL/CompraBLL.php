@@ -18,6 +18,8 @@ class CompraBLL extends BaseBLL
             ->setFechaCompra(new DateTime())
             ->setPrecio($videojuego->getPrecio());
 
+        $videojuego->setStock($videojuego->getStock() - $data['cantidad']);
+
         return $this->guardaValidando($compra);
     }
 
