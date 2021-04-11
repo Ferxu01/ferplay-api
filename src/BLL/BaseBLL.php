@@ -31,6 +31,9 @@ class BaseBLL
     /** @var string */
     protected $videojuegosUrl;
 
+    /** @var string */
+    protected $server_url;
+
     function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
@@ -47,6 +50,8 @@ class BaseBLL
         $this->avatarsUrl = $avatarsUrl;
         $this->videojuegosDirectory = $videojuegosDirectory;
         $this->videojuegosUrl = $videojuegosUrl;
+        $this->server_url = 'http://'.$_SERVER['SERVER_NAME'].':'
+            .$_SERVER['SERVER_PORT'];
     }
 
     private function validate($entity)

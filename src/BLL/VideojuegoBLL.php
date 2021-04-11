@@ -19,10 +19,9 @@ class VideojuegoBLL extends BaseBLL
             throw new BadRequestHttpException('Formato de imagen incorrecto');
 
         $imgFoto = base64_decode($arr_imagen[1]);
+
         if (!is_null($imgFoto))
         {
-            unlink($this->urlDirVideojuegos . $videojuego->getImagen());
-
             //Obtener nombre de la imagen formateando el nombre del videojuego
             $nombreArray = explode(' ', $videojuego->getNombre());
             $formatNombre = implode('-', $nombreArray);
@@ -45,6 +44,8 @@ class VideojuegoBLL extends BaseBLL
     private function actualizaVideojuego(Request $request, Videojuego $videojuego, array $data)
     {
         $plataforma = $this->em->getRepository(Plataforma::class)->find($data['plataforma']);
+
+        unlink($this->urlDirVideojuegos . $videojuego->getImagen());
 
         $videojuego->setNombre($data['nombre'])
             ->setDescripcion($data['descripcion'])
@@ -98,7 +99,7 @@ class VideojuegoBLL extends BaseBLL
             'descripcion' => $videojuego->getDescripcion(),
             'plataforma' => $videojuego->getPlataforma()->toArray(),
             'precio' => $videojuego->getPrecio(),
-            'imagen' => $videojuego->getImagen(),
+            'imagen' => $this->server_url . $this->videojuegosUrl . $videojuego->getImagen(),
             'usuario' => $videojuego->getUsuario()->toArray(),
             'liked' => $videojuego->getLiked(),
             'favourite' => $videojuego->getFavourite(),

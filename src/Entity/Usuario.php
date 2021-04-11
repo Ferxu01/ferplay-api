@@ -137,7 +137,8 @@ class Usuario implements UserInterface, \Serializable
 
     public function getAvatar(): ?string
     {
-        return $this->avatar;
+        return 'http://'.$_SERVER['SERVER_NAME'].':'
+            .$_SERVER['SERVER_PORT'] . '/img/users/' . $this->avatar;
     }
 
     public function setAvatar(?string $avatar): self
