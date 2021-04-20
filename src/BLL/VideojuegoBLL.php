@@ -71,7 +71,7 @@ class VideojuegoBLL extends BaseBLL
             ->setLiked(false)
             ->setFavourite(false)
             ->setNumLikes(0)
-            ->setStock($data['stock'] || 1);
+            ->setStock($data['stock']);
 
         return $this->guardaImagen($request, $videojuego, $data);
     }

@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\CarroCompra;
+use App\Entity\Usuario;
+use App\Entity\Videojuego;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,6 +19,20 @@ class CarroCompraRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CarroCompra::class);
+    }
+
+    public function findVideojuegosCarroUsuario(Usuario $usuario)
+    {
+        $qb = $this->createQueryBuilder('vC')
+            ->innerJoin('vC.videojuego', 'v')
+            ->innerJoin('vC.usuario', 'u')
+            ->where('u = :usuario')
+            ->setParameter('usuario', $usuario)
+            /*->andWhere('v.id', ':idVideojuego')
+            ->setParameter('idVideojuego', $videojuego->getId())*/
+            ->groupBy('v.id');
+
+        return $qb->getQuery()->getResult();
     }
 
     // /**

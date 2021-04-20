@@ -28,7 +28,7 @@ class UsuarioRestController extends BaseApiController
             throw new BadRequestHttpException('No se ha recibido el token de google');
 
         $googleJwt = json_decode(file_get_contents(
-            "https://www.googleapis.com/plus/v1/people/me?access_token=" . $data['access_token']));
+            "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" . $data['access_token']));
 
         $token = $usuarioBLL->getTokenByEmail($googleJwt->emails[0]->value);
 

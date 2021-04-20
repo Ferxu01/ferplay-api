@@ -90,4 +90,30 @@ class CarroCompraRestController extends BaseApiController
         $carroCompraBLL->eliminarVideojuegoCarro($videojuego->getId());
         return $this->getResponse();
     }
+
+    /**
+     * @Route(
+     *     "/videojuegos/{id}/carro/{idCarroCompra}.{_format}",
+     *     name="update_stock_videojuego_carro",
+     *     requirements={"id": "\d+", "_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"PATCH"}
+     * )
+     */
+    public function cambiarStockVideojuegoCarro(Validation $validation, Request $request, Videojuego $videojuego = null, CarroCompraBLL $carroCompraBLL, int $idCarroCompra)
+    {
+        $data = $this->getContent($request);
+
+        if (!$validation->esNumerico($data['stock'])) {
+            $errores['mensaje'] = 'El stock debe ser un número';
+        } else if ($validation->esNumeroNegativo($data['stock'])) {
+            $errores['mensaje'] = 'El stock no puede ser negativo';
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
+
+        $videojuegoCarro = $carroCompraBLL->cambiarStockVideojuegoCarro($data, $idCarroCompra);
+        return $this->getResponse($videojuegoCarro);
+    }
 }

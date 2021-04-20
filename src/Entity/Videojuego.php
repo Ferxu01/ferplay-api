@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helpers\EntityUrl;
 use App\Repository\VideojuegoRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -96,7 +97,7 @@ class Videojuego
     private $stock;
 
     /**
-     * @ORM\OneToMany(targetEntity=CarroCompra::class, mappedBy="videojuego")
+     * @ORM\OneToMany(targetEntity=CarroCompra::class, mappedBy="videojuego", orphanRemoval=true)
      */
     private $carroCompras;
 
@@ -345,13 +346,15 @@ class Videojuego
 
     public function toArray()
     {
+        $urlEntidad = new EntityUrl();
+
         return [
             'id' => $this->getId(),
             'nombre' => $this->getNombre(),
             'descripcion' => $this->getDescripcion(),
             'plataforma' => $this->getPlataforma()->toArray(),
             'precio' => $this->getPrecio(),
-            'imagen' => $this->getImagen(),
+            'imagen' => $urlEntidad->getUrlImagenVideojuego() . $this->getImagen(),
             'usuario' => $this->getUsuario()->toArray(),
             'liked' => $this->getLiked(),
             'favourite' => $this->getFavourite(),

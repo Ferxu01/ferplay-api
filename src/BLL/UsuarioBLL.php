@@ -76,6 +76,16 @@ class UsuarioBLL extends BaseBLL
             $user = new Usuario();
             $user->setAvatar($data['avatar'])
                 ->setPassword($this->encoder->encodePassword($user, $data['password']));
+
+            $user->setNombre($data['nombre'])
+                ->setApellidos($data['apellidos'])
+                ->setNickname($data['nickname'])
+                ->setEmail($data['email'])
+                ->setProvincia($provincia)
+                ->setFechaCreacion(new DateTime())
+                ->setMe(true);
+
+            return $this->guardaAvatar($request, $user, $data);
         }
 
         $user->setNombre($data['nombre'])
@@ -86,8 +96,8 @@ class UsuarioBLL extends BaseBLL
             ->setFechaCreacion(new DateTime())
             ->setMe(true);
 
-        if (is_null($user))
-            return $this->guardaAvatar($request, $user, $data);
+        /*if (is_null($user))
+            return $this->guardaAvatar($request, $user, $data);*/
 
         return $this->guardaValidando($user);
     }

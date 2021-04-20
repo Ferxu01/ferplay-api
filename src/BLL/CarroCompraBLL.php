@@ -10,18 +10,30 @@ class CarroCompraBLL extends BaseBLL
     public function obtenerVideojuegosCarro()
     {
         $carroRepo = $this->em->getRepository(CarroCompra::class);
-        $videojuegos = $carroRepo->findBy([
+        /*$videojuegos = $carroRepo->findBy([
             'usuario' => $this->getUser()
-        ]);
+        ]);*/
+        $videojuegos = $carroRepo->findVideojuegosCarroUsuario($this->getUser());
         return $this->entitiesToArray($videojuegos);
     }
 
     public function nuevoVideojuegoCarro(array $data, Videojuego $videojuego)
     {
-        $carroCompra = new CarroCompra();
-        $carroCompra->setVideojuego($videojuego)
-            ->setUsuario($this->getUser())
-            ->setCantidad($data['cantidad']);
+        $carroCompraRepo = $this->em->getRepository(CarroCompra::class);
+        $carroCompra = $carroCompraRepo->findOneBy([
+            'videojuego' => $videojuego->getId(),
+            'usuario' => $this->getUser()
+        ]);
+
+        if (is_null($carroCompra)) {
+            $carroCompra = new CarroCompra();
+
+            $carroCompra->setVideojuego($videojuego)
+                ->setUsuario($this->getUser())
+                ->setCantidad(1);
+        } else {
+            $carroCompra->setCantidad($carroCompra->getCantidad() + 1);
+        }
 
         return $this->guardaValidando($carroCompra);
     }
@@ -36,6 +48,18 @@ class CarroCompraBLL extends BaseBLL
 
         $this->em->remove($videojuego);
         $this->em->flush();
+    }
+
+    public function cambiarStockVideojuegoCarro(array $data, $idVideojuegoCarro)
+    {
+        $carroCompraRepo = $this->em->getRepository(CarroCompra::class);
+        $videojuegoCarro = $carroCompraRepo->findOneBy([
+            'id' => $idVideojuegoCarro
+        ]);
+
+        $videojuegoCarro->setCantidad($data['stock']);
+
+        return $this->guardaValidando($videojuegoCarro);
     }
 
     public function toArray(CarroCompra $carroCompra)
