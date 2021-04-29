@@ -12,7 +12,6 @@ class FavoritoBLL extends BaseBLL
         $favorito = new Favorito();
         $favorito->setUsuario($this->getUser());
         $favorito->setVideojuego($videojuego);
-        $videojuego->setFavourite(true);
 
         return $this->guardaValidando($favorito);
     }
@@ -24,7 +23,6 @@ class FavoritoBLL extends BaseBLL
             'videojuego' => $videojuego,
             'usuario' => $this->getUser()
         ]);
-        $videojuego->setFavourite(false);
 
         $this->em->remove($favorito);
         $this->em->flush();

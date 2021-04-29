@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Compra;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
 
 /**
  * @method Compra|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,6 +18,13 @@ class CompraRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Compra::class);
+    }
+
+    public function getMaxLineaCompra()
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->select('MAX(c.lineaCompra) AS maxLineaCompra');
+        return $qb->getQuery()->getResult()[0];
     }
 
     // /**

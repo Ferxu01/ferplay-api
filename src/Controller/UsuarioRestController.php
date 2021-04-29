@@ -6,6 +6,7 @@ use App\BLL\CompraBLL;
 use App\BLL\UsuarioBLL;
 use App\Entity\Usuario;
 use App\Helpers\Validation;
+use App\Interceptors\UserInterceptor;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

@@ -4,6 +4,8 @@ namespace App\BLL;
 
 use App\Entity\Provincia;
 use App\Entity\Usuario;
+use App\Helpers\EntityUrl;
+use App\Interceptors\UserInterceptor;
 use DateTime;
 use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -82,8 +84,7 @@ class UsuarioBLL extends BaseBLL
                 ->setNickname($data['nickname'])
                 ->setEmail($data['email'])
                 ->setProvincia($provincia)
-                ->setFechaCreacion(new DateTime())
-                ->setMe(true);
+                ->setFechaCreacion(new DateTime());
 
             return $this->guardaAvatar($request, $user, $data);
         }
@@ -93,8 +94,7 @@ class UsuarioBLL extends BaseBLL
             ->setNickname($data['nickname'])
             ->setEmail($data['email'])
             ->setProvincia($provincia)
-            ->setFechaCreacion(new DateTime())
-            ->setMe(true);
+            ->setFechaCreacion(new DateTime());
 
         /*if (is_null($user))
             return $this->guardaAvatar($request, $user, $data);*/
@@ -111,11 +111,14 @@ class UsuarioBLL extends BaseBLL
     {
         $user = $this->getUser();
 
+        $user = $this->userInterceptor->setLoggedUser($user);
+
         return $this->toArray($user);
     }
 
     public function perfil(Usuario $usuario)
     {
+        $usuario = $this->userInterceptor->setUser($this->getUser(), $usuario);
         return $this->toArray($usuario);
     }
 
@@ -133,8 +136,10 @@ class UsuarioBLL extends BaseBLL
 
     public function editarAvatar(Request $request, array $data)
     {
+        $strImagen = EntityUrl::getNombreImagen($this->getUser());
+
         if ($this->getUser()->getAvatar() !== '')
-            unlink($this->urlDirUsuarios . $this->getUser()->getAvatar());
+            unlink($this->urlDirUsuarios . $strImagen);
         return $this->guardaAvatar($request, $this->getUser(), $data);
     }
 

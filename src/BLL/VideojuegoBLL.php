@@ -2,8 +2,12 @@
 
 namespace App\BLL;
 
+use App\Entity\Favorito;
+use App\Entity\Like;
 use App\Entity\Plataforma;
+use App\Entity\Usuario;
 use App\Entity\Videojuego;
+use App\Helpers\EntityUrl;
 use DateTime;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +32,8 @@ class VideojuegoBLL extends BaseBLL
 
             $fileName = $formatNombre . '-'. time() . '.jpg';
             $videojuego->setImagen($fileName);
-            $ifp = fopen($this->videojuegosDirectory . '/' . $fileName, "wb");
+
+            $ifp = fopen($this->urlDirVideojuegos . $fileName, "wb");
             if ($ifp)
             {
                 $ok = fwrite ($ifp, $imgFoto);
@@ -45,7 +50,9 @@ class VideojuegoBLL extends BaseBLL
     {
         $plataforma = $this->em->getRepository(Plataforma::class)->find($data['plataforma']);
 
-        unlink($this->urlDirVideojuegos . $videojuego->getImagen());
+        $nombreImagen = EntityUrl::getNombreImagenVideojuego($videojuego);
+
+        unlink($this->urlDirVideojuegos . $nombreImagen);
 
         $videojuego->setNombre($data['nombre'])
             ->setDescripcion($data['descripcion'])
@@ -54,6 +61,70 @@ class VideojuegoBLL extends BaseBLL
             ->setImagen($data['imagen']);
 
         return $this->guardaImagen($request, $videojuego, $data);
+    }
+
+    public function getAllVideojuegos()
+    {
+        $videojuegoRepo = $this->em->getRepository(Videojuego::class);
+        $likeRepo = $this->em->getRepository(Like::class);
+        $favoritoRepo = $this->em->getRepository(Favorito::class);
+
+        $videojuegos = $videojuegoRepo->getAllVideojuegos();
+        $likes = $likeRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+        $favoritos = $favoritoRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+
+        foreach ($videojuegos as $videojuego) {
+            $videojuego = $this->videojuegoInterceptor->setVideojuegoMine($videojuego, $this->getUser());
+
+            foreach ($likes as $like) {
+                if ($videojuego->getId() === $like->getVideojuego()->getId()) {
+                    $videojuego = $this->videojuegoInterceptor
+                        ->setVideojuegoLiked($videojuego);
+                }
+            }
+
+            foreach ($favoritos as $favorito) {
+                if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
+                    $videojuego = $this->videojuegoInterceptor
+                        ->setVideojuegoFavorito($videojuego);
+                }
+            }
+        }
+
+        return $videojuegos;
+    }
+
+    public function getVideojuegosUsuario(Usuario $usuario)
+    {
+        $videojuegoRepo = $this->em->getRepository(Videojuego::class);
+        return $videojuegoRepo->getVideojuegosUsuario($usuario->getId());
+    }
+
+    public function getVideojuegosFavoritos()
+    {
+        $favoritoRepo = $this->em->getRepository(Favorito::class);
+        $favoritos = $favoritoRepo->findBy([
+            'usuario' => $this->getUser()
+        ]);
+
+        $videojuegoRepo = $this->em->getRepository(Videojuego::class);
+        $videojuegosUsuario = $videojuegoRepo->getVideojuegosUsuario($this->getUser()->getId());
+
+        $videojuegosFavoritos = [];
+
+        foreach ($videojuegosUsuario as $videojuego) {
+            foreach ($favoritos as $favorito) {
+                if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
+                    array_push($videojuegosFavoritos, $videojuego);
+                }
+            }
+        }
+
+        return $videojuegosFavoritos;
     }
 
     public function nuevo(Request $request, array $data)
@@ -65,11 +136,12 @@ class VideojuegoBLL extends BaseBLL
             ->setDescripcion($data['descripcion'])
             ->setPlataforma($plataforma)
             ->setPrecio($data['precio'])
-            ->setImagen($data['imagen'])
+            //->setImagen($data['imagen'])
             ->setUsuario($this->getUser())
             ->setFechaCreacion(new DateTime())
             ->setLiked(false)
             ->setFavourite(false)
+            ->setMine(false)
             ->setNumLikes(0)
             ->setStock($data['stock']);
 
@@ -83,7 +155,9 @@ class VideojuegoBLL extends BaseBLL
 
     public function borrar($videojuego)
     {
-        unlink($this->urlDirVideojuegos . $videojuego->getImagen());
+        $nombreImagen = EntityUrl::getNombreImagenVideojuego($videojuego);
+
+        unlink($this->urlDirVideojuegos . $nombreImagen);
         $this->em->remove($videojuego);
         $this->em->flush();
     }
@@ -104,6 +178,7 @@ class VideojuegoBLL extends BaseBLL
             'liked' => $videojuego->getLiked(),
             'favourite' => $videojuego->getFavourite(),
             'numLikes' => $videojuego->getNumLikes(),
+            'mine' => $videojuego->getMine(),
             'stock' => $videojuego->getStock(),
             'fechaCreacion' => $videojuego->getFechaCreacion()->format('Y-m-d H:i:s')
         ];

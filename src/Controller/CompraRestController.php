@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CompraRestController extends BaseApiController
-{
+{/*
     /**
      * @Route(
      *     "/videojuegos/{id}/buy.{_format}",
@@ -20,6 +20,7 @@ class CompraRestController extends BaseApiController
      *     methods={"POST"}
      * )
      */
+    /*
     public function nueva(Validation $validation, Request $request, Videojuego $videojuego = null, CompraBLL $compraBLL)
     {
         if (!$validation->existeEntidad($videojuego)) {
@@ -46,6 +47,21 @@ class CompraRestController extends BaseApiController
 
         $data = $this->getContent($request);
         $compraBLL->nuevaCompra($request, $videojuego, $data);
+        return $this->getResponse();
+    }*/
+
+    /**
+     * @Route(
+     *     "/videojuegos/buy.{_format}",
+     *     name="buy_videojuegos_carro",
+     *     requirements={"_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"POST"}
+     * )
+     */
+    public function nuevaCompra(Validation $validation, CompraBLL $compraBLL)
+    {
+        $compraBLL->comprarVideojuegos();
         return $this->getResponse();
     }
 }

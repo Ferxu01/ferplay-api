@@ -44,6 +44,11 @@ class Compra
      */
     private $precio;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $lineaCompra;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +110,18 @@ class Compra
     public function setPrecio(int $precio): self
     {
         $this->precio = $precio;
+
+        return $this;
+    }
+
+    public function getLineaCompra(): ?int
+    {
+        return $this->lineaCompra;
+    }
+
+    public function setLineaCompra(int $lineaCompra): self
+    {
+        $this->lineaCompra = $lineaCompra;
 
         return $this;
     }

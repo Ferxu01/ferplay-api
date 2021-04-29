@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+use App\Entity\Usuario;
+use App\Entity\Videojuego;
+
 class EntityUrl
 {
     private string $server_url;
@@ -32,5 +35,17 @@ class EntityUrl
     public function getUrlAvatarUsuario(): string
     {
         return $this->urlAvatarUsuario;
+    }
+
+    public static function getNombreImagen(Usuario $usuario): string
+    {
+        $index = strrpos($usuario->getAvatar(), '/');
+        return substr($usuario->getAvatar(), $index+1);
+    }
+
+    public static function getNombreImagenVideojuego(Videojuego $videojuego): string
+    {
+        $index = strrpos($videojuego->getImagen(), '/');
+        return substr($videojuego->getImagen(), $index);
     }
 }

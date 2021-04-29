@@ -101,11 +101,15 @@ class Videojuego
      */
     private $carroCompras;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $mine;
+
     public function __construct()
     {
         $this->comentarios = new ArrayCollection();
         $this->likes = new ArrayCollection();
-        $this->setLiked(false);
         $this->compras = new ArrayCollection();
         $this->favoritos = new ArrayCollection();
         $this->carroCompras = new ArrayCollection();
@@ -358,6 +362,8 @@ class Videojuego
             'usuario' => $this->getUsuario()->toArray(),
             'liked' => $this->getLiked(),
             'favourite' => $this->getFavourite(),
+            'numLikes' => $this->getNumLikes(),
+            'mine' => $this->getMine(),
             'stock' => $this->getStock(),
             'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
         ];
@@ -413,6 +419,18 @@ class Videojuego
                 $carroCompra->setVideojuego(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMine(): ?bool
+    {
+        return $this->mine;
+    }
+
+    public function setMine(bool $mine): self
+    {
+        $this->mine = $mine;
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 namespace App\BLL;
 
+use App\Interceptors\UserInterceptor;
+use App\Interceptors\VideojuegoInterceptor;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -34,6 +36,12 @@ class BaseBLL
     /** @var string */
     protected $server_url;
 
+    /** @var UserInterceptor */
+    protected $userInterceptor;
+
+    /** @var VideojuegoInterceptor */
+    protected $videojuegoInterceptor;
+
     function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
@@ -52,6 +60,8 @@ class BaseBLL
         $this->videojuegosUrl = $videojuegosUrl;
         $this->server_url = 'http://'.$_SERVER['SERVER_NAME'].':'
             .$_SERVER['SERVER_PORT'];
+        $this->userInterceptor = new UserInterceptor();
+        $this->videojuegoInterceptor = new VideojuegoInterceptor();
     }
 
     private function validate($entity)

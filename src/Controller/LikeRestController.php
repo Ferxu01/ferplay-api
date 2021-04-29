@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\LikeBLL;
+use App\Entity\Like;
 use App\Entity\Videojuego;
 use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,6 +11,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class LikeRestController extends BaseApiController
 {
+    private function getLikesUsuario(): array
+    {
+        $likeRepo = $this->getDoctrine()->getRepository(Like::class);
+        $likes = $likeRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+        return $likes;
+    }
+
     /**
      * @Route(
      *     "/videojuegos/{id}/like.{_format}",
@@ -25,9 +35,13 @@ class LikeRestController extends BaseApiController
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
-            if ($videojuego->getLiked() === true) {
-                $errores['mensajes'] = 'Ya has dado like a este videojuego';
-                $statusCode = Response::HTTP_BAD_REQUEST;
+            $likes = $this->getLikesUsuario();
+
+            foreach ($likes as $like) {
+                if ($like->getVideojuego()->getId() === $videojuego->getId()) {
+                    $errores['mensajes'] = 'Ya has dado like a este videojuego';
+                    $statusCode = Response::HTTP_BAD_REQUEST;
+                }
             }
         }
 
@@ -52,12 +66,16 @@ class LikeRestController extends BaseApiController
         if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
-        } else {
-            if ($videojuego->getLiked() === false) {
-                $errores['mensajes'] = 'No has dado like a este videojuego';
-                $statusCode = Response::HTTP_BAD_REQUEST;
+        } /*else {
+            $likes = $this->getLikesUsuario();
+
+            foreach ($likes as $like) {
+                if ($like->getVideojuego()->getId() !== $videojuego->getId()) {
+                    $errores['mensajes'] = 'No has dado like a este videojuego';
+                    $statusCode = Response::HTTP_BAD_REQUEST;
+                }
             }
-        }
+        }*/
 
         if (isset($errores))
             return $this->getErrorResponse($errores, $statusCode);

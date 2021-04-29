@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\FavoritoBLL;
+use App\Entity\Favorito;
 use App\Entity\Videojuego;
 use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,6 +11,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class FavoritoRestController extends BaseApiController
 {
+    private function getFavoritosUsuario(): array
+    {
+        $favoritoRepo = $this->getDoctrine()->getRepository(Favorito::class);
+        $favoritos = $favoritoRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+        return $favoritos;
+    }
+
     /**
      * @Route(
      *     "/videojuegos/{id}/favourite.{_format}",
@@ -25,9 +35,13 @@ class FavoritoRestController extends BaseApiController
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
         } else {
-            if ($videojuego->getFavourite() === true) {
-                $errores['mensajes'] = 'Ya has dado like a este videojuego';
-                $statusCode = Response::HTTP_BAD_REQUEST;
+            $favoritos = $this->getFavoritosUsuario();
+
+            foreach ($favoritos as $favorito) {
+                if ($favorito->getVideojuego()->getId() === $videojuego->getId()) {
+                    $errores['mensajes'] = 'Ya has añadido a favoritos a este videojuego';
+                    $statusCode = Response::HTTP_BAD_REQUEST;
+                }
             }
         }
 
@@ -52,12 +66,12 @@ class FavoritoRestController extends BaseApiController
         if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
-        } else {
+        } /*else {
             if ($videojuego->getFavourite() === false) {
                 $errores['mensajes'] = 'No has añadido a favoritos este videojuego';
                 $statusCode = Response::HTTP_BAD_REQUEST;
             }
-        }
+        }*/
 
         if (isset($errores))
             return $this->getErrorResponse($errores, $statusCode);

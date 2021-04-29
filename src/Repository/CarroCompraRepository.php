@@ -27,10 +27,19 @@ class CarroCompraRepository extends ServiceEntityRepository
             ->innerJoin('vC.videojuego', 'v')
             ->innerJoin('vC.usuario', 'u')
             ->where('u = :usuario')
-            ->setParameter('usuario', $usuario)
+            ->setParameter('usuario', $usuario);
             /*->andWhere('v.id', ':idVideojuego')
             ->setParameter('idVideojuego', $videojuego->getId())*/
-            ->groupBy('v.id');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function borrarVideojuegosCarro(Usuario $usuario)
+    {
+        $qb = $this->createQueryBuilder('vC');
+        $qb->where('vC.usuario = :usuario');
+        $qb->setParameter('usuario', $usuario->getId());
+        $qb->delete();
 
         return $qb->getQuery()->getResult();
     }

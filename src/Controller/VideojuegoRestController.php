@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\BLL\VideojuegoBLL;
 use App\Entity\Favorito;
 use App\Entity\Like;
+use App\Entity\Usuario;
 use App\Entity\Videojuego;
 use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,42 +26,14 @@ class VideojuegoRestController extends BaseApiController
      */
     public function getAll(VideojuegoBLL $videojuegoBLL)
     {
-        //Asignar "me": true al usuario logueado
-        $this->getUser()->setMe(true);
-
         $videojuegoRepo = $this->getDoctrine()->getRepository(Videojuego::class);
 
         //Obtener todos los videojuegos
-        $videojuegos = $videojuegoRepo->findAll();
+        $videojuegos = $videojuegoBLL->getAllVideojuegos();
 
         if (count($videojuegos) === 0) {
             $errores['mensaje'] = 'No se encontraron videojuegos';
             return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
-        }
-
-        //Obtener y asignar like a los videojuegos que el usuario haya dado like
-        $videojuegosUsuario = $videojuegoRepo->getVideojuegosUsuario($this->getUser()->getId());
-        $likeRepo = $this->getDoctrine()->getRepository(Like::class);
-        $favouriteRepo = $this->getDoctrine()->getRepository(Favorito::class);
-        $likes = $likeRepo->findBy([
-            'usuario' => $this->getUser()->getId()
-        ]);
-        $favourites = $favouriteRepo->findBy([
-            'usuario' => $this->getUser()->getId()
-        ]);
-
-        foreach ($likes as $like) {
-            foreach ($videojuegosUsuario as $videojuego) {
-                if ($like->getVideojuego() === $videojuego)
-                    $videojuego->setLiked(true);
-            }
-        }
-
-        foreach ($favourites as $favourite) {
-            foreach ($videojuegosUsuario as $videojuego) {
-                if ($favourite->getVideojuego() === $videojuego)
-                    $videojuego->setFavourite(true);
-            }
         }
 
         return $this->getResponse($videojuegoBLL->entitiesToArray($videojuegos));
@@ -83,6 +56,53 @@ class VideojuegoRestController extends BaseApiController
         }
 
         return $this->getResponse($videojuegoBLL->toArray($videojuego));
+    }
+
+    /**
+     * @Route(
+     *     "/videojuegos/usuario/{id}.{_format}",
+     *     name="get_videojuegos_usuario",
+     *     requirements={"id": "\d+", "_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function getVideojuegosUsuario(Validation $validation, VideojuegoBLL $videojuegoBLL, Usuario $usuario = null)
+    {
+        if (!$validation->existeEntidad($usuario)) {
+            $errores['mensaje'] = 'No existe el usuario';
+            $statusCode = Response::HTTP_NOT_FOUND;
+
+            return $this->getErrorResponse($errores, $statusCode);
+        }
+
+        $videojuegos = $videojuegoBLL->getVideojuegosUsuario($usuario);
+
+        if (count($videojuegos) === 0) {
+            $errores['mensaje'] = 'El usuario no ha subido videojuegos';
+            $statusCode = Response::HTTP_NOT_FOUND;
+        }
+
+        if (isset($errores))
+            return $this->getErrorResponse($errores, $statusCode);
+
+        return $this->getResponse($videojuegoBLL->entitiesToArray($videojuegos));
+    }
+
+    /**
+     * @Route(
+     *     "/videojuegos/favoritos.{_format}",
+     *     name="get_videojuegos_favoritos_usuario",
+     *     requirements={"_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function getVideojuegosFavoritos(VideojuegoBLL $videojuegoBLL)
+    {
+        $videojuegos = $videojuegoBLL->getVideojuegosFavoritos();
+
+        return $this->getResponse($videojuegoBLL->entitiesToArray($videojuegos));
     }
 
     /**

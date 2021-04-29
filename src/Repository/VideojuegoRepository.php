@@ -29,6 +29,15 @@ class VideojuegoRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function getAllVideojuegos()
+    {
+        $qb = $this->createQueryBuilder('v');
+        $qb->innerJoin('v.plataforma', 'plataforma');
+        $qb->innerJoin('v.usuario', 'usuario');
+        $qb->orderBy('v.fechaCreacion', 'DESC');
+        return $qb->getQuery()->getResult();
+    }
+
     // /**
     //  * @return Videojuego[] Returns an array of Videojuego objects
     //  */
