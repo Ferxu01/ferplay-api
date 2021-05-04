@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Compra;
+use App\Entity\Usuario;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
@@ -25,6 +26,29 @@ class CompraRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('c');
         $qb->select('MAX(c.lineaCompra) AS maxLineaCompra');
         return $qb->getQuery()->getResult()[0];
+    }
+
+    public function getHistorialCompras(Usuario $usuario)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->innerJoin('c.videojuego', 'v');
+        $qb->innerJoin('c.usuario', 'u');
+        $qb->where('c.usuario = :usuario');
+        $qb->setParameter('usuario', $usuario);
+        $qb->groupBy('c.lineaCompra');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getVideojuegosCompra(int $lineaCompra)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->innerJoin('c.videojuego', 'v');
+        $qb->innerJoin('c.usuario', 'u');
+        $qb->where('c.lineaCompra = :lineaCompra');
+        $qb->setParameter('lineaCompra', $lineaCompra);
+
+        return $qb->getQuery()->getResult();
     }
 
     // /**

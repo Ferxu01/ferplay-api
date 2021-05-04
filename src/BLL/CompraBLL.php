@@ -57,10 +57,19 @@ class CompraBLL extends BaseBLL
     public function getHistorialCompras()
     {
         $compraRepo = $this->em->getRepository(Compra::class);
-        $compras = $compraRepo->findBy([
-            'usuario' => $this->getUser()
-        ]);
+
+        //Obtener compras de un usuario agrupadas por linea de compra
+        $compras = $compraRepo->getHistorialCompras($this->getUser());
         return $this->entitiesToArray($compras);
+    }
+
+    public function getDetallesCompra(int $lineaCompra)
+    {
+        $compraRepo = $this->em->getRepository(Compra::class);
+
+        $videojuegosCompra = $compraRepo->getVideojuegosCompra($lineaCompra);
+
+        return $this->entitiesToArray($videojuegosCompra);
     }
 
     public function toArray(Compra $compra)

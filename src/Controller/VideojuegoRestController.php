@@ -55,7 +55,9 @@ class VideojuegoRestController extends BaseApiController
             return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
         }
 
-        return $this->getResponse($videojuegoBLL->toArray($videojuego));
+        $videojuego = $videojuegoBLL->getDetallesVideojuego($videojuego);
+
+        return $this->getResponse($videojuego);
     }
 
     /**

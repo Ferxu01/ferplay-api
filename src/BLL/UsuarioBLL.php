@@ -84,6 +84,7 @@ class UsuarioBLL extends BaseBLL
                 ->setNickname($data['nickname'])
                 ->setEmail($data['email'])
                 ->setProvincia($provincia)
+                ->setMe(false)
                 ->setFechaCreacion(new DateTime());
 
             return $this->guardaAvatar($request, $user, $data);
@@ -119,6 +120,7 @@ class UsuarioBLL extends BaseBLL
     public function perfil(Usuario $usuario)
     {
         $usuario = $this->userInterceptor->setUser($this->getUser(), $usuario);
+
         return $this->toArray($usuario);
     }
 

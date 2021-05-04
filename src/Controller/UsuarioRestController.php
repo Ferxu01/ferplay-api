@@ -103,6 +103,22 @@ class UsuarioRestController extends BaseApiController
 
     /**
      * @Route(
+     *     "/profile/buy/{lineaCompra}.{_format}",
+     *     name="get_detalles_compra",
+     *     requirements={"_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function getDetallesCompra(int $lineaCompra, CompraBLL $compraBLL)
+    {
+        $videojuegosCompra = $compraBLL->getDetallesCompra($lineaCompra);
+
+        return $this->getResponse($videojuegosCompra);
+    }
+
+    /**
+     * @Route(
      *     "/profile/me.{_format}",
      *     name="profile_logged",
      *     requirements={"_format": "json"},

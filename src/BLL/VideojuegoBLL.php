@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class VideojuegoBLL extends BaseBLL
 {
-    private $urlDirVideojuegos = '..\public\img\videogames\\';
+    private $urlDirVideojuegos = __DIR__ . '\..\..\public\img\videogames\\';
 
     private function guardaImagen($request, $videojuego, $data) {
         $arr_imagen = explode (',', $data['imagen']);
@@ -96,6 +96,37 @@ class VideojuegoBLL extends BaseBLL
         }
 
         return $videojuegos;
+    }
+
+    public function getDetallesVideojuego(Videojuego $videojuego)
+    {
+        $likeRepo = $this->em->getRepository(Like::class);
+        $favoritoRepo = $this->em->getRepository(Favorito::class);
+
+        $likes = $likeRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+        $favoritos = $favoritoRepo->findBy([
+            'usuario' => $this->getUser()->getId()
+        ]);
+
+        foreach ($likes as $like) {
+            if ($videojuego->getId() === $like->getVideojuego()->getId()) {
+                $videojuego = $this->videojuegoInterceptor
+                    ->setVideojuegoLiked($videojuego);
+            }
+        }
+
+        foreach ($favoritos as $favorito) {
+            if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
+                $videojuego = $this->videojuegoInterceptor
+                    ->setVideojuegoFavorito($videojuego);
+            }
+        }
+
+        $videojuego = $this->videojuegoInterceptor->setVideojuegoMine($videojuego, $this->getUser());
+
+        return $videojuego->toArray();
     }
 
     public function getVideojuegosUsuario(Usuario $usuario)
