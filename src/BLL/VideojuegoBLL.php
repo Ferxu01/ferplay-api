@@ -50,17 +50,27 @@ class VideojuegoBLL extends BaseBLL
     {
         $plataforma = $this->em->getRepository(Plataforma::class)->find($data['plataforma']);
 
-        $nombreImagen = EntityUrl::getNombreImagenVideojuego($videojuego);
+        $imagenCambiada = strpos($data['imagen'], 'http://');
 
-        unlink($this->urlDirVideojuegos . $nombreImagen);
+        if ($imagenCambiada === false) {
+            $nombreImagen = EntityUrl::getNombreImagenVideojuego($videojuego);
+            unlink($this->urlDirVideojuegos . $nombreImagen);
+
+            $videojuego->setNombre($data['nombre'])
+                ->setDescripcion($data['descripcion'])
+                ->setPlataforma($plataforma)
+                ->setPrecio($data['precio'])
+                ->setImagen($data['imagen']);
+
+            return $this->guardaImagen($request, $videojuego, $data);
+        }
 
         $videojuego->setNombre($data['nombre'])
             ->setDescripcion($data['descripcion'])
             ->setPlataforma($plataforma)
-            ->setPrecio($data['precio'])
-            ->setImagen($data['imagen']);
+            ->setPrecio($data['precio']);
 
-        return $this->guardaImagen($request, $videojuego, $data);
+        return $this->guardaValidando($videojuego);
     }
 
     public function getAllVideojuegos()
