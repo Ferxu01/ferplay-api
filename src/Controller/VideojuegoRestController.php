@@ -100,9 +100,16 @@ class VideojuegoRestController extends BaseApiController
      *     methods={"GET"}
      * )
      */
-    public function getVideojuegosFavoritos(VideojuegoBLL $videojuegoBLL)
+    public function getVideojuegosFavoritos(Validation $validation, VideojuegoBLL $videojuegoBLL)
     {
         $videojuegos = $videojuegoBLL->getVideojuegosFavoritos();
+
+        if (count($videojuegos) < 1) {
+            $errores['mensaje'] = 'No tienes videojuegos favoritos';
+            $statusCode = Response::HTTP_NOT_FOUND;
+
+            return $this->getErrorResponse($errores, $statusCode);
+        }
 
         return $this->getResponse($videojuegoBLL->entitiesToArray($videojuegos));
     }
