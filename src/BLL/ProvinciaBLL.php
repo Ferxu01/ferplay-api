@@ -14,6 +14,14 @@ class ProvinciaBLL extends BaseBLL
         return $this->entitiesToArray($provincias);
     }
 
+    public function getOne(Provincia $provincia)
+    {
+        $provinciaRepo = $this->em->getRepository(Provincia::class);
+        $provincia = $provinciaRepo->find($provincia);
+
+        return $this->toArray($provincia);
+    }
+
     public function toArray(Provincia $provincia)
     {
         if (is_null($provincia))
