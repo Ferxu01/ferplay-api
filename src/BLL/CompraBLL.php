@@ -29,6 +29,8 @@ class CompraBLL extends BaseBLL
                 ->setFechaCompra(new DateTime())
                 ->setPrecio($videojuegoCarro->getVideojuego()->getPrecio());
 
+            $videojuegoCarro->getVideojuego()->setStock($videojuegoCarro->getVideojuego()->getStock() - $videojuegoCarro->getCantidad());
+
             $this->guardaValidando($compra);
         }
 
@@ -49,7 +51,7 @@ class CompraBLL extends BaseBLL
             ->setLineaCompra($lineaCompra+1)
             ->setPrecio($videojuego->getPrecio());
 
-        $videojuego->setStock($videojuego->getStock() - $data['cantidad']);
+         $videojuego->setStock($videojuego->getStock()- $data['cantidad']);
 
         return $this->guardaValidando($compra);
     }

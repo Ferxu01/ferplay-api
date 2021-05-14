@@ -60,7 +60,8 @@ class VideojuegoBLL extends BaseBLL
                 ->setDescripcion($data['descripcion'])
                 ->setPlataforma($plataforma)
                 ->setPrecio($data['precio'])
-                ->setImagen($data['imagen']);
+                ->setImagen($data['imagen'])
+                ->setStock($data['stock']);
 
             return $this->guardaImagen($request, $videojuego, $data);
         }
@@ -68,7 +69,8 @@ class VideojuegoBLL extends BaseBLL
         $videojuego->setNombre($data['nombre'])
             ->setDescripcion($data['descripcion'])
             ->setPlataforma($plataforma)
-            ->setPrecio($data['precio']);
+            ->setPrecio($data['precio'])
+            ->setStock($data['stock']);
 
         return $this->guardaValidando($videojuego);
     }
@@ -153,11 +155,11 @@ class VideojuegoBLL extends BaseBLL
         ]);
 
         $videojuegoRepo = $this->em->getRepository(Videojuego::class);
-        $videojuegosUsuario = $videojuegoRepo->getVideojuegosUsuario($this->getUser()->getId());
+        $videojuegos = $videojuegoRepo->findAll();
 
         $videojuegosFavoritos = [];
 
-        foreach ($videojuegosUsuario as $videojuego) {
+        foreach ($videojuegos as $videojuego) {
             foreach ($favoritos as $favorito) {
                 if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
                     array_push($videojuegosFavoritos, $videojuego);
