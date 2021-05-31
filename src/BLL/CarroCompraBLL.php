@@ -10,9 +10,6 @@ class CarroCompraBLL extends BaseBLL
     public function obtenerVideojuegosCarro()
     {
         $carroRepo = $this->em->getRepository(CarroCompra::class);
-        /*$videojuegos = $carroRepo->findBy([
-            'usuario' => $this->getUser()
-        ]);*/
         $videojuegos = $carroRepo->findVideojuegosCarroUsuario($this->getUser());
         return $this->entitiesToArray($videojuegos);
     }
@@ -56,7 +53,6 @@ class CarroCompraBLL extends BaseBLL
         $videojuegoCarro = $carroCompraRepo->findOneBy([
             'id' => $idVideojuegoCarro
         ]);
-
         $videojuegoCarro->setCantidad($data['stock']);
 
         return $this->guardaValidando($videojuegoCarro);

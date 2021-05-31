@@ -5,12 +5,9 @@ namespace App\BLL;
 use App\Entity\Provincia;
 use App\Entity\Usuario;
 use App\Helpers\EntityUrl;
-use App\Interceptors\UserInterceptor;
 use DateTime;
 use Exception;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -19,26 +16,7 @@ class UsuarioBLL extends BaseBLL
     /** @var UserPasswordEncoderInterface $encoder */
     private $encoder;
 
-    /** @var JWTTokenManagerInterface */
-    private $jwtManager;
-
-    private $urlDirUsuarios = '../public/img/users/';
-
-    public function setJWTManager(JWTTokenManagerInterface $jwtManager)
-    {
-        $this->jwtManager = $jwtManager;
-    }
-
-    public function getTokenByEmail($email)
-    {
-        $user = $this->em->getRepository(Usuario::class)
-            ->findOneBy(['email' => $email]);
-
-        if (is_null($user))
-            throw new AccessDeniedHttpException('Usuario no autorizado');
-
-        return $this->jwtManager->create($user);
-    }
+    private $urlDirUsuarios = '..\public\img\users\\';
 
     public function setEncoder(UserPasswordEncoderInterface $encoder)
     {
@@ -97,9 +75,6 @@ class UsuarioBLL extends BaseBLL
             ->setProvincia($provincia)
             ->setFechaCreacion(new DateTime());
 
-        /*if (is_null($user))
-            return $this->guardaAvatar($request, $user, $data);*/
-
         return $this->guardaValidando($user);
     }
 
@@ -111,15 +86,14 @@ class UsuarioBLL extends BaseBLL
     public function miPerfil()
     {
         $user = $this->getUser();
-
-        $user = $this->userInterceptor->setLoggedUser($user);
+        $user = $this->userHelper->setLoggedUser($user);
 
         return $this->toArray($user);
     }
 
     public function perfil(Usuario $usuario)
     {
-        $usuario = $this->userInterceptor->setUser($this->getUser(), $usuario);
+        $usuario = $this->userHelper->setUser($this->getUser(), $usuario);
 
         return $this->toArray($usuario);
     }
@@ -133,15 +107,16 @@ class UsuarioBLL extends BaseBLL
     {
         $user = $this->getUser();
         $user->setPassword($this->encoder->encodePassword($user, $password));
+
         return $this->guardaValidando($user);
     }
 
     public function editarAvatar(Request $request, array $data)
     {
         $strImagen = EntityUrl::getNombreImagen($this->getUser());
-
         if ($this->getUser()->getAvatar() !== '')
             unlink($this->urlDirUsuarios . $strImagen);
+
         return $this->guardaAvatar($request, $this->getUser(), $data);
     }
 

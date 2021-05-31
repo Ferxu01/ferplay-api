@@ -17,6 +17,7 @@ class LikeRestController extends BaseApiController
         $likes = $likeRepo->findBy([
             'usuario' => $this->getUser()->getId()
         ]);
+
         return $likes;
     }
 
@@ -49,6 +50,7 @@ class LikeRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $like = $likeBLL->darLike($videojuego);
+
         return $this->getResponse($like, Response::HTTP_NO_CONTENT);
     }
 
@@ -66,21 +68,13 @@ class LikeRestController extends BaseApiController
         if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
-        } /*else {
-            $likes = $this->getLikesUsuario();
-
-            foreach ($likes as $like) {
-                if ($like->getVideojuego()->getId() !== $videojuego->getId()) {
-                    $errores['mensajes'] = 'No has dado like a este videojuego';
-                    $statusCode = Response::HTTP_BAD_REQUEST;
-                }
-            }
-        }*/
+        }
 
         if (isset($errores))
             return $this->getErrorResponse($errores, $statusCode);
 
         $likeBLL->eliminarLike($videojuego);
+
         return $this->getResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

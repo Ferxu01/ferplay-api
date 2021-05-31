@@ -17,7 +17,31 @@ class FavoritoRestController extends BaseApiController
         $favoritos = $favoritoRepo->findBy([
             'usuario' => $this->getUser()->getId()
         ]);
+
         return $favoritos;
+    }
+
+    /**
+     * @Route(
+     *     "/videojuegos/favoritos.{_format}",
+     *     name="get_videojuegos_favoritos_usuario",
+     *     requirements={"_format": "json"},
+     *     defaults={"_format": "json"},
+     *     methods={"GET"}
+     * )
+     */
+    public function getVideojuegosFavoritos(FavoritoBLL $favoritoBLL)
+    {
+        $videojuegos = $favoritoBLL->getVideojuegosFavoritos();
+
+        if (count($videojuegos) < 1) {
+            $errores['mensaje'] = 'No tienes videojuegos favoritos';
+            $statusCode = Response::HTTP_NOT_FOUND;
+
+            return $this->getErrorResponse($errores, $statusCode);
+        }
+
+        return $this->getResponse($favoritoBLL->entitiesToArray($videojuegos));
     }
 
     /**
@@ -49,6 +73,7 @@ class FavoritoRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $favorito = $favoritoBLL->addFavoritos($videojuego);
+
         return $this->getResponse($favorito, Response::HTTP_NO_CONTENT);
     }
 
@@ -66,17 +91,13 @@ class FavoritoRestController extends BaseApiController
         if (!$validation->existeEntidad($videojuego)) {
             $errores['mensajes'] = 'No se ha encontrado el videojuego';
             $statusCode = Response::HTTP_NOT_FOUND;
-        } /*else {
-            if ($videojuego->getFavourite() === false) {
-                $errores['mensajes'] = 'No has añadido a favoritos este videojuego';
-                $statusCode = Response::HTTP_BAD_REQUEST;
-            }
-        }*/
+        }
 
         if (isset($errores))
             return $this->getErrorResponse($errores, $statusCode);
 
         $favoritoBLL->eliminaFavoritos($videojuego);
+
         return $this->getResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

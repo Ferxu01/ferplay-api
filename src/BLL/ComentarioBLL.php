@@ -22,7 +22,6 @@ class ComentarioBLL extends BaseBLL
     public function nuevo(Request $request, Videojuego $videojuego, array $data)
     {
         $comentario = new Comentario();
-
         $comentario->setTexto($data['comentario'])
             ->setUsuario($this->getUser())
             ->setVideojuego($videojuego)

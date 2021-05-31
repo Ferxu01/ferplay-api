@@ -21,7 +21,7 @@ class CarroCompraRestController extends BaseApiController
      *     methods={"GET"}
      * )
      */
-    public function getVideojuegosCarro(Validation $validation, CarroCompraBLL $carroCompraBLL)
+    public function getVideojuegosCarro(CarroCompraBLL $carroCompraBLL)
     {
         $videojuegos = $carroCompraBLL->obtenerVideojuegosCarro();
         if (count($videojuegos) === 0) {
@@ -51,6 +51,7 @@ class CarroCompraRestController extends BaseApiController
         }
 
         $videojuego = $carroCompraBLL->nuevoVideojuegoCarro($data, $videojuego);
+
         return $this->getResponse($videojuego);
     }
 
@@ -88,6 +89,7 @@ class CarroCompraRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $carroCompraBLL->eliminarVideojuegoCarro($videojuego->getId());
+
         return $this->getResponse();
     }
 
@@ -114,6 +116,7 @@ class CarroCompraRestController extends BaseApiController
             return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
 
         $videojuegoCarro = $carroCompraBLL->cambiarStockVideojuegoCarro($data, $idCarroCompra);
+
         return $this->getResponse($videojuegoCarro);
     }
 }

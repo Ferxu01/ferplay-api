@@ -2,7 +2,6 @@
 
 namespace App\Helpers;
 
-use App\Entity\Compra;
 use App\Entity\Videojuego;
 
 class Validation

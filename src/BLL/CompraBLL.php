@@ -4,9 +4,7 @@ namespace App\BLL;
 
 use App\Entity\CarroCompra;
 use App\Entity\Compra;
-use App\Entity\Videojuego;
 use DateTime;
-use Symfony\Component\HttpFoundation\Request;
 
 class CompraBLL extends BaseBLL
 {
@@ -14,9 +12,9 @@ class CompraBLL extends BaseBLL
     {
         $carroRepo = $this->em->getRepository(CarroCompra::class);
         $videojuegosCarro = $carroRepo->findVideojuegosCarroUsuario($this->getUser());
+        $compraRepo = $this->em->getRepository(Compra::class);
 
         //Obtener el valor máximo de la linea de compra
-        $compraRepo = $this->em->getRepository(Compra::class);
         $lineaCompra = $compraRepo->getMaxLineaCompra()['maxLineaCompra'];
         $lineaCompra += 1;
 
@@ -36,39 +34,18 @@ class CompraBLL extends BaseBLL
 
         $carroRepo->borrarVideojuegosCarro($this->getUser());
     }
-    
-    public function nuevaCompra(Request $request, Videojuego $videojuego, array $data)
-    {
-        //Obtener el valor máximo de la linea de compra
-        $compraRepo = $this->em->getRepository(Compra::class);
-        $lineaCompra = $compraRepo->getMaxLineaCompra()['maxLineaCompra'];
-
-        $compra = new Compra();
-        $compra->setUsuario($this->getUser())
-            ->setVideojuego($videojuego)
-            ->setCantidad($data['cantidad'])
-            ->setFechaCompra(new DateTime())
-            ->setLineaCompra($lineaCompra+1)
-            ->setPrecio($videojuego->getPrecio());
-
-         $videojuego->setStock($videojuego->getStock()- $data['cantidad']);
-
-        return $this->guardaValidando($compra);
-    }
 
     public function getHistorialCompras()
     {
         $compraRepo = $this->em->getRepository(Compra::class);
-
-        //Obtener compras de un usuario agrupadas por linea de compra
         $compras = $compraRepo->getHistorialCompras($this->getUser());
+
         return $this->entitiesToArray($compras);
     }
 
     public function getDetallesCompra(int $lineaCompra)
     {
         $compraRepo = $this->em->getRepository(Compra::class);
-
         $videojuegosCompra = $compraRepo->getVideojuegosCompra($lineaCompra);
 
         return $this->entitiesToArray($videojuegosCompra);

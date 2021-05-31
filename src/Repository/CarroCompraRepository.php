@@ -28,8 +28,6 @@ class CarroCompraRepository extends ServiceEntityRepository
             ->innerJoin('vC.usuario', 'u')
             ->where('u = :usuario')
             ->setParameter('usuario', $usuario);
-            /*->andWhere('v.id', ':idVideojuego')
-            ->setParameter('idVideojuego', $videojuego->getId())*/
 
         return $qb->getQuery()->getResult();
     }

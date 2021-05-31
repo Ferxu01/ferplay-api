@@ -6,7 +6,6 @@ use App\Repository\UsuarioRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Exception;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -335,22 +334,6 @@ class Usuario implements UserInterface, \Serializable
         return $this;
     }
 
-    public function toArray()
-    {
-        return [
-            'id' => $this->getId(),
-            'nombre' => $this->getNombre(),
-            'apellidos' => $this->getApellidos(),
-            'nickname' => $this->getNickname(),
-            'email' => $this->getEmail(),
-            'password' => $this->getPassword(),
-            'avatar' => $this->getAvatar(),
-            'provincia' => $this->getProvincia()->toArray(),
-            'me' => $this->getMe(),
-            'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
-        ];
-    }
-
     /**
      * @return Collection|Compra[]
      */
@@ -469,5 +452,21 @@ class Usuario implements UserInterface, \Serializable
         }
 
         return $this;
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->getId(),
+            'nombre' => $this->getNombre(),
+            'apellidos' => $this->getApellidos(),
+            'nickname' => $this->getNickname(),
+            'email' => $this->getEmail(),
+            'password' => $this->getPassword(),
+            'avatar' => $this->getAvatar(),
+            'provincia' => $this->getProvincia()->toArray(),
+            'me' => $this->getMe(),
+            'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
+        ];
     }
 }

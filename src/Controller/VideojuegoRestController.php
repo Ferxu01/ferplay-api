@@ -3,14 +3,11 @@
 namespace App\Controller;
 
 use App\BLL\VideojuegoBLL;
-use App\Entity\Favorito;
-use App\Entity\Like;
 use App\Entity\Usuario;
 use App\Entity\Videojuego;
 use App\Helpers\Validation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class VideojuegoRestController extends BaseApiController
@@ -26,9 +23,6 @@ class VideojuegoRestController extends BaseApiController
      */
     public function getAll(VideojuegoBLL $videojuegoBLL)
     {
-        $videojuegoRepo = $this->getDoctrine()->getRepository(Videojuego::class);
-
-        //Obtener todos los videojuegos
         $videojuegos = $videojuegoBLL->getAllVideojuegos();
 
         if (count($videojuegos) === 0) {
@@ -93,29 +87,6 @@ class VideojuegoRestController extends BaseApiController
 
     /**
      * @Route(
-     *     "/videojuegos/favoritos.{_format}",
-     *     name="get_videojuegos_favoritos_usuario",
-     *     requirements={"_format": "json"},
-     *     defaults={"_format": "json"},
-     *     methods={"GET"}
-     * )
-     */
-    public function getVideojuegosFavoritos(Validation $validation, VideojuegoBLL $videojuegoBLL)
-    {
-        $videojuegos = $videojuegoBLL->getVideojuegosFavoritos();
-
-        if (count($videojuegos) < 1) {
-            $errores['mensaje'] = 'No tienes videojuegos favoritos';
-            $statusCode = Response::HTTP_NOT_FOUND;
-
-            return $this->getErrorResponse($errores, $statusCode);
-        }
-
-        return $this->getResponse($videojuegoBLL->entitiesToArray($videojuegos));
-    }
-
-    /**
-     * @Route(
      *     "/videojuegos.{_format}",
      *     name="post_videojuego",
      *     defaults={"_format": "json"},
@@ -153,6 +124,7 @@ class VideojuegoRestController extends BaseApiController
             return $this->getErrorResponse($errores, Response::HTTP_BAD_REQUEST);
 
         $videojuego = $videojuegoBLL->nuevo($request, $data);
+
         return $this->getResponse($videojuego, Response::HTTP_CREATED);
     }
 
@@ -207,6 +179,7 @@ class VideojuegoRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $videojuego = $videojuegoBLL->editar($request, $videojuego, $data);
+
         return $this->getResponse($videojuego);
     }
 
@@ -235,6 +208,7 @@ class VideojuegoRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $videojuegoBLL->borrar($videojuego);
+
         return $this->getResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

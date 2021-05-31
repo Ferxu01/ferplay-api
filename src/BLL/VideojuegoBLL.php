@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class VideojuegoBLL extends BaseBLL
 {
-    private $urlDirVideojuegos = __DIR__ . '/../../public/img/videogames/';
+    private $urlDirVideojuegos = __DIR__ . '\..\..\public\img\videogames\\';
 
     private function guardaImagen($request, $videojuego, $data) {
         $arr_imagen = explode (',', $data['imagen']);
@@ -90,18 +90,18 @@ class VideojuegoBLL extends BaseBLL
         ]);
 
         foreach ($videojuegos as $videojuego) {
-            $videojuego = $this->videojuegoInterceptor->setVideojuegoMine($videojuego, $this->getUser());
+            $videojuego = $this->videojuegoHelper->setVideojuegoMine($videojuego, $this->getUser());
 
             foreach ($likes as $like) {
                 if ($videojuego->getId() === $like->getVideojuego()->getId()) {
-                    $videojuego = $this->videojuegoInterceptor
+                    $videojuego = $this->videojuegoHelper
                         ->setVideojuegoLiked($videojuego);
                 }
             }
 
             foreach ($favoritos as $favorito) {
                 if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
-                    $videojuego = $this->videojuegoInterceptor
+                    $videojuego = $this->videojuegoHelper
                         ->setVideojuegoFavorito($videojuego);
                 }
             }
@@ -124,19 +124,19 @@ class VideojuegoBLL extends BaseBLL
 
         foreach ($likes as $like) {
             if ($videojuego->getId() === $like->getVideojuego()->getId()) {
-                $videojuego = $this->videojuegoInterceptor
+                $videojuego = $this->videojuegoHelper
                     ->setVideojuegoLiked($videojuego);
             }
         }
 
         foreach ($favoritos as $favorito) {
             if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
-                $videojuego = $this->videojuegoInterceptor
+                $videojuego = $this->videojuegoHelper
                     ->setVideojuegoFavorito($videojuego);
             }
         }
 
-        $videojuego = $this->videojuegoInterceptor->setVideojuegoMine($videojuego, $this->getUser());
+        $videojuego = $this->videojuegoHelper->setVideojuegoMine($videojuego, $this->getUser());
 
         return $videojuego->toArray();
     }
@@ -144,30 +144,8 @@ class VideojuegoBLL extends BaseBLL
     public function getVideojuegosUsuario(Usuario $usuario)
     {
         $videojuegoRepo = $this->em->getRepository(Videojuego::class);
+
         return $videojuegoRepo->getVideojuegosUsuario($usuario->getId());
-    }
-
-    public function getVideojuegosFavoritos()
-    {
-        $favoritoRepo = $this->em->getRepository(Favorito::class);
-        $favoritos = $favoritoRepo->findBy([
-            'usuario' => $this->getUser()
-        ]);
-
-        $videojuegoRepo = $this->em->getRepository(Videojuego::class);
-        $videojuegos = $videojuegoRepo->findAll();
-
-        $videojuegosFavoritos = [];
-
-        foreach ($videojuegos as $videojuego) {
-            foreach ($favoritos as $favorito) {
-                if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
-                    array_push($videojuegosFavoritos, $videojuego);
-                }
-            }
-        }
-
-        return $videojuegosFavoritos;
     }
 
     public function nuevo(Request $request, array $data)
@@ -179,7 +157,6 @@ class VideojuegoBLL extends BaseBLL
             ->setDescripcion($data['descripcion'])
             ->setPlataforma($plataforma)
             ->setPrecio($data['precio'])
-            //->setImagen($data['imagen'])
             ->setUsuario($this->getUser())
             ->setFechaCreacion(new DateTime())
             ->setLiked(false)
@@ -199,8 +176,8 @@ class VideojuegoBLL extends BaseBLL
     public function borrar($videojuego)
     {
         $nombreImagen = EntityUrl::getNombreImagenVideojuego($videojuego);
-
         unlink($this->urlDirVideojuegos . $nombreImagen);
+
         $this->em->remove($videojuego);
         $this->em->flush();
     }

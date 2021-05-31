@@ -64,6 +64,7 @@ class ComentarioRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $comentario = $comentarioBLL->nuevo($request, $videojuego, $data);
+
         return $this->getResponse($comentario, Response::HTTP_CREATED);
     }
 
@@ -101,6 +102,7 @@ class ComentarioRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
 
         $comentarioBLL->delete($comentario);
+
         return $this->getResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

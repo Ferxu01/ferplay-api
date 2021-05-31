@@ -348,27 +348,6 @@ class Videojuego
         return $this;
     }
 
-    public function toArray()
-    {
-        $urlEntidad = new EntityUrl();
-
-        return [
-            'id' => $this->getId(),
-            'nombre' => $this->getNombre(),
-            'descripcion' => $this->getDescripcion(),
-            'plataforma' => $this->getPlataforma()->toArray(),
-            'precio' => $this->getPrecio(),
-            'imagen' => $urlEntidad->getUrlImagenVideojuego() . $this->getImagen(),
-            'usuario' => $this->getUsuario()->toArray(),
-            'liked' => $this->getLiked(),
-            'favourite' => $this->getFavourite(),
-            'numLikes' => $this->getNumLikes(),
-            'mine' => $this->getMine(),
-            'stock' => $this->getStock(),
-            'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
-        ];
-    }
-
     public function getNumLikes(): ?int
     {
         return $this->numLikes;
@@ -433,5 +412,26 @@ class Videojuego
         $this->mine = $mine;
 
         return $this;
+    }
+
+    public function toArray()
+    {
+        $urlEntidad = new EntityUrl();
+
+        return [
+            'id' => $this->getId(),
+            'nombre' => $this->getNombre(),
+            'descripcion' => $this->getDescripcion(),
+            'plataforma' => $this->getPlataforma()->toArray(),
+            'precio' => $this->getPrecio(),
+            'imagen' => $urlEntidad->getUrlImagenVideojuego() . $this->getImagen(),
+            'usuario' => $this->getUsuario()->toArray(),
+            'liked' => $this->getLiked(),
+            'favourite' => $this->getFavourite(),
+            'numLikes' => $this->getNumLikes(),
+            'mine' => $this->getMine(),
+            'stock' => $this->getStock(),
+            'fechaCreacion' => $this->getFechaCreacion()->format('Y-m-d H:i:s')
+        ];
     }
 }
