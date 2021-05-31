@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class VideojuegoBLL extends BaseBLL
 {
-    private $urlDirVideojuegos = __DIR__ . '\..\..\public\img\videogames\\';
+    private $urlDirVideojuegos = __DIR__ . '/../../public/img/videogames/';
 
     private function guardaImagen($request, $videojuego, $data) {
         $arr_imagen = explode (',', $data['imagen']);

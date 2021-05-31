@@ -22,7 +22,7 @@ class UsuarioBLL extends BaseBLL
     /** @var JWTTokenManagerInterface */
     private $jwtManager;
 
-    private $urlDirUsuarios = '..\public\img\users\\';
+    private $urlDirUsuarios = '../public/img/users/';
 
     public function setJWTManager(JWTTokenManagerInterface $jwtManager)
     {
