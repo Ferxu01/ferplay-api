@@ -100,4 +100,3 @@ services:
         parent: App\BLL\BaseBLL
         calls:
             - [ setEncoder, [ '@security.user_password_encoder.generic' ] ]
-            - [ setJWTManager, ['@lexik_jwt_authentication.jwt_manager'] ]
