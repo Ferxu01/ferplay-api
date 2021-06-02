@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class VideojuegoBLL extends BaseBLL
 {
-    private $urlDirVideojuegos = __DIR__ . '\..\..\public\img\videogames\\';
+    private $urlDirVideojuegos = __DIR__ . '/../../public/img/videogames/';
 
     private function guardaImagen($request, $videojuego, $data) {
         $arr_imagen = explode (',', $data['imagen']);
@@ -73,6 +73,29 @@ class VideojuegoBLL extends BaseBLL
             ->setStock($data['stock']);
 
         return $this->guardaValidando($videojuego);
+    }
+
+    public function getVideojuegosFavoritos()
+    {
+        $favoritoRepo = $this->em->getRepository(Favorito::class);
+        $favoritos = $favoritoRepo->findBy([
+            'usuario' => $this->getUser()
+        ]);
+
+        $videojuegoRepo = $this->em->getRepository(Videojuego::class);
+        $videojuegos = $videojuegoRepo->findAll();
+
+        $videojuegosFavoritos = [];
+
+        foreach ($videojuegos as $videojuego) {
+            foreach ($favoritos as $favorito) {
+                if ($videojuego->getId() === $favorito->getVideojuego()->getId()) {
+                    array_push($videojuegosFavoritos, $videojuego);
+                }
+            }
+        }
+
+        return $videojuegosFavoritos;
     }
 
     public function getAllVideojuegos()

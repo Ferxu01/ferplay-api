@@ -16,7 +16,7 @@ class UsuarioBLL extends BaseBLL
     /** @var UserPasswordEncoderInterface $encoder */
     private $encoder;
 
-    private $urlDirUsuarios = '..\public\img\users\\';
+    private $urlDirUsuarios = '../public/img/users/';
 
     public function setEncoder(UserPasswordEncoderInterface $encoder)
     {

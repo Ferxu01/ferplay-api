@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\BLL\FavoritoBLL;
+use App\BLL\VideojuegoBLL;
 use App\Entity\Favorito;
 use App\Entity\Videojuego;
 use App\Helpers\Validation;
@@ -30,9 +31,9 @@ class FavoritoRestController extends BaseApiController
      *     methods={"GET"}
      * )
      */
-    public function getVideojuegosFavoritos(FavoritoBLL $favoritoBLL)
+    public function getVideojuegosFavoritos(VideojuegoBLL $videojuegoBLL)
     {
-        $videojuegos = $favoritoBLL->getVideojuegosFavoritos();
+        $videojuegos = $videojuegoBLL->getVideojuegosFavoritos();
 
         if (count($videojuegos) < 1) {
             $errores['mensaje'] = 'No tienes videojuegos favoritos';
@@ -41,7 +42,7 @@ class FavoritoRestController extends BaseApiController
             return $this->getErrorResponse($errores, $statusCode);
         }
 
-        return $this->getResponse($favoritoBLL->entitiesToArray($videojuegos));
+        return $this->getResponse($videojuegoBLL->entitiesToArray($videojuegos));
     }
 
     /**

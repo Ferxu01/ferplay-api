@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\CarroCompra;
 use App\Entity\Usuario;
-use App\Entity\Videojuego;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

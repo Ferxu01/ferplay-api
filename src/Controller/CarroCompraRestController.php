@@ -25,7 +25,7 @@ class CarroCompraRestController extends BaseApiController
     {
         $videojuegos = $carroCompraBLL->obtenerVideojuegosCarro();
         if (count($videojuegos) === 0) {
-            $errores['mensajes'] = 'No has añadido ningún videojuego aún';
+            $errores['mensajes'] = 'No has añadido ningún videojuego';
             return $this->getErrorResponse($errores, Response::HTTP_NOT_FOUND);
         }
 
